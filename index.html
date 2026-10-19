@@ -73,6 +73,12 @@ h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;white-space:no
 .sw input:focus-visible+span{outline:3px solid var(--blue);outline-offset:2px}
 .primary{height:54px;border-radius:27px;background:var(--ink);color:#FFFFFF;border:0;font-size:16px;font-weight:700}
 @media (prefers-reduced-motion: reduce){.sw span,.sw span::after{transition:none}}
+#handSheet{max-height:88vh;overflow-y:auto}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vrow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 10px;border-radius:12px;background:var(--bg,#EEF1F6);font-size:14px;cursor:pointer}
+.vrow b{font-weight:700;margin-right:4px}
+.vgrid.off .vrow{opacity:.45}
+.sw.sm{width:40px;height:24px}.sw.sm span::after{width:18px;height:18px}.sw.sm input:checked+span::after{transform:translateX(16px)}
 [hidden]{display:none!important}
 .modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:#E2E7EF;border-radius:14px;padding:3px}
 .modes button{height:36px;border:0;border-radius:11px;background:transparent;font-size:14px;color:var(--ink);font-weight:500}
@@ -150,7 +156,16 @@ h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;white-space:no
 .logwrap th{color:var(--muted);font-weight:500;position:sticky;top:0;background:var(--card)}
 .logwrap td:first-child,.logwrap th:first-child{text-align:left;color:var(--muted)}
 .empty{font-size:14px;color:var(--muted);padding:8px 0}
-@media (prefers-reduced-motion: reduce){.reel.shake{animation:none}.gcard{transition:none}}
+.gm{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;color:var(--ink);min-height:132px}
+.gm:active{transform:scale(0.98)}
+.gm-ic{width:48px;height:48px;border-radius:14px;background:var(--blue-soft);color:var(--blue-ink);display:flex;align-items:center;justify-content:center}
+.gm-t{font-size:22px;font-weight:700;letter-spacing:-0.01em}
+.gm-s{font-size:14px;color:var(--muted);line-height:1.4}
+.rm{min-height:0;gap:5px}.rm .gm-t{font-size:20px}.rtag{font-size:12px;font-weight:700;color:#14593A;background:#E3F2EA;border-radius:10px;padding:2px 8px}.rbest{font-size:13px;font-weight:700}
+.rm.dark{background:#10131A;color:#FFFFFF;border-color:#10131A}.rm.dark .gm-s{color:#C3CAD8}.rm.dark .rtag{background:#FFD43B;color:#10131A}
+.backchip{align-self:flex-start;height:32px;min-width:32px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:700;padding:0 10px;margin-right:8px}
+.bl .backchip,.bq .backchip{height:28px;min-width:28px;padding:0 8px;vertical-align:middle}
+@media (prefers-reduced-motion: reduce){.reel.shake{animation:none}.gcard{transition:none}.gm:active{transform:none}}
 
 </style>
 
@@ -165,7 +180,7 @@ h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;white-space:no
       <button class="ib" id="ghostBtn" aria-label="Compare with ghost particles" aria-pressed="false">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="12" r="5"></circle><circle cx="15" cy="12" r="5" stroke-opacity="0.5"></circle></svg>
       </button>
-      <button class="ib" id="handBtn" aria-label="Hand settings" aria-pressed="true">
+      <button class="ib" id="handBtn" aria-label="Settings" aria-pressed="true">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 12V6.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M10 10.5V4.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M13 10.5V5.5a1.5 1.5 0 0 1 3 0V12"></path><path d="M16 11V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-5-2.7L4.2 15a1.6 1.6 0 0 1 2.6-1.8L8 14.5"></path></svg>
       </button>
       <button class="ib" id="eyeBtn" aria-label="Show predicted path" aria-pressed="true">
@@ -211,12 +226,24 @@ h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;white-space:no
 </section>
 
 <div class="back" id="handBack" hidden></div>
-<section class="sheet" id="handSheet" hidden aria-label="Hand">
+<section class="sheet" id="handSheet" hidden aria-label="Settings">
   <div class="grab"></div>
-  <div class="sh"><h2>Right-hand palm rule</h2><label class="sw" aria-label="Show hand"><input type="checkbox" id="hOn"><span></span></label></div>
-  <p class="sub">Fingers along B, thumb along v, palm pushes F.</p>
+  <div class="sh"><h2>Settings</h2></div>
+  <div class="sh"><div><div class="gtitle">Right-hand palm rule</div><div class="muted">Fingers along B, thumb along v, palm pushes F.</div></div><label class="sw" aria-label="Show hand"><input type="checkbox" id="hOn"><span></span></label></div>
   <div class="lab"><span>Skin tone</span></div>
   <div class="tones" id="tones"></div>
+  <div class="sh"><div><div class="gtitle">Turn the cube in 3D</div><div class="muted">Swipe up or down to tilt B, left or right to turn it. Lab only.</div></div><label class="sw" aria-label="Turn the cube in 3D"><input type="checkbox" id="t3On"><span></span></label></div>
+  <div class="sh"><div><div class="gtitle">Clean view</div><div class="muted">Hide every arrow and number. Just the charge and its path.</div></div><label class="sw" aria-label="Clean view"><input type="checkbox" id="cleanOn"><span></span></label></div>
+  <div class="lab"><span>Show on screen</span></div>
+  <div class="vgrid" id="vGrid">
+    <label class="vrow"><span><b>v</b> velocity</span><span class="sw sm"><input type="checkbox" data-k="v"><span></span></span></label>
+    <label class="vrow"><span><b>F</b> force</span><span class="sw sm"><input type="checkbox" data-k="F"><span></span></span></label>
+    <label class="vrow"><span><b>r</b> radius</span><span class="sw sm"><input type="checkbox" data-k="r"><span></span></span></label>
+    <label class="vrow"><span><b>θ</b> angle</span><span class="sw sm"><input type="checkbox" data-k="th"><span></span></span></label>
+    <label class="vrow"><span><b>v⊥</b> across B</span><span class="sw sm"><input type="checkbox" data-k="per"><span></span></span></label>
+    <label class="vrow"><span><b>v∥</b> along B</span><span class="sw sm"><input type="checkbox" data-k="par"><span></span></span></label>
+    <label class="vrow"><span><b>1.2</b> numbers</span><span class="sw sm"><input type="checkbox" data-k="lab"><span></span></span></label>
+  </div>
   <button class="primary" id="hDone">Done</button>
 </section>
 
@@ -234,11 +261,12 @@ const BOX=4.5;
 let store={}; try{store=JSON.parse(localStorage.getItem('lorentzlab')||'{}')||{}}catch(e){store={}}
 const S={q:1,qMem:1,m:1,B:1,phi:0,phiLive:0,v:2,pullV:0,pullOff:0,eye:true,inside:false,mode:'idle',eqMode:'r',
   ghost:{on:false,v:'m',mult:[0.5,2]},hl:[],expandT:0,badgeTxt:'',popT:0,fadeT:1,tilt:1,
-  hand:store.hand!==false,tone:(typeof store.tone==='number'?store.tone:1),editing:false};
+  hand:store.hand!==false,tone:(typeof store.tone==='number'?store.tone:1),editing:false,psi:0,psiLive:0,turn3d:!!store.turn3d,oldTrails:[],view:{a:0,e:0,al:0,el:0},show:Object.assign({v:true,F:true,r:true,per:true,par:true,th:true,lab:true},store.show||{}),clean:!!store.clean};
+const vis=k=>!S.clean&&S.show[k];
 S.app='lab'; S.toast=''; S.toastT=0; S.chromeHidden=!!store.chromeHidden;
 const LOG={n:0,rows:[]};
 const GM={round:0,stars:(store.games&&store.games.stars)||0,stats:(store.games&&store.games.stats)||{},phase:'off',key:null,R:null,picks:new Set(),bad:{},tries:0,launches:0,fails:0,showF:false,det:null,goalLanded:false,spinning:false,auto:false};
-function save(){try{localStorage.setItem('lorentzlab',JSON.stringify({hand:S.hand,tone:S.tone,games:{stars:GM.stars,stats:GM.stats},chromeHidden:S.chromeHidden}))}catch(e){}}
+function save(){try{localStorage.setItem('lorentzlab',JSON.stringify({hand:S.hand,tone:S.tone,games:{stars:GM.stars,stats:GM.stats},chromeHidden:S.chromeHidden,turn3d:S.turn3d,show:S.show,clean:S.clean}))}catch(e){}}
 let G={}, main=null, ghosts=[], bursts=[], preds=[], gesture=null, last=performance.now();
 const pointers=new Map();
 
@@ -252,7 +280,8 @@ const D2R=Math.PI/180, normf=p=>((p%360)+360)%360;
 function cosPh(ph){const c=Math.cos((ph==null?S.phi:ph)*D2R);return Math.abs(c)<1e-3?0:c;}
 function Bz(B){return B*cosPh();}   // component of B out of the page; |Bz| = B sinθ
 function bdir(ph){const a=ph*D2R;return [0,Math.sin(a),Math.cos(a)];}
-function faceName(ph){const n=normf(ph),f=Math.round(n/90)*90%360;return Math.abs(n-Math.round(n/90)*90)<0.5?DIRS[f]:'tilted';}
+function bvec(ph,ps){const a=ph*D2R,c=(ps||0)*D2R;return [Math.sin(c)*Math.cos(a),Math.sin(a),Math.cos(c)*Math.cos(a)];}   // tilt φ about the horizontal axis, then turn ψ about the vertical (v) axis; θ depends on φ only
+function faceName(ph,ps){const b=bvec(ph,ps==null?S.psi:ps);for(const [i,s,t] of [[2,1,'out of page'],[2,-1,'into page'],[1,1,'along v'],[1,-1,'against v'],[0,1,'to the right'],[0,-1,'to the left']])if(b[i]*s>0.9999)return t;return 'tilted';}
 function params(v){return {q:S.q,m:S.m,B:S.B,v:v==null?S.v:v};}
 function rOf(p){const s=Math.abs(cosPh());if(!p.q||!s)return Infinity;return p.m*p.v*s/(Math.abs(p.q)*p.B);}   // r = mv sinθ / qB
 function sinTh(){return Math.abs(cosPh());}
@@ -272,7 +301,7 @@ function qText(q){return q?(q>0?'+':'−')+fv(Math.abs(q))+'e':'0';}
 /* ---------- physics (world units, y up) ---------- */
 function inBox(x,y,z){return Math.abs(x)<BOX&&Math.abs(y)<BOX&&Math.abs(z||0)<BOX;}
 function padW(){return S.inside?{x:0,y:0}:{x:0,y:-BOX-1.15-0.9*S.tilt};}
-function mk(p,tag,k){const w=padW();return {x:w.x,y:w.y,z:0,vx:0,vy:p.v,vz:0,q:p.q,m:p.m,B:p.B,v:p.v,ph:S.phi,entered:S.inside,alive:true,trail:[[w.x,w.y,0]],tag,k};}
+function mk(p,tag,k){const w=padW();return {x:w.x,y:w.y,z:0,vx:0,vy:p.v,vz:0,q:p.q,m:p.m,B:p.B,v:p.v,ph:S.phi,b:bvec(S.phi,S.psi),entered:S.inside,alive:true,trail:[[w.x,w.y,0]],tag,k};}
 function rot3(P,b,a){ // turn v about the unit field direction b by angle a (Rodrigues): exact, speed never changes
   const c=Math.cos(a),s=Math.sin(a),vx=P.vx,vy=P.vy,vz=P.vz,d=b[0]*vx+b[1]*vy+b[2]*vz;
   const cx=b[1]*vz-b[2]*vy,cy=b[2]*vx-b[0]*vz,cz=b[0]*vy-b[1]*vx;
@@ -280,7 +309,7 @@ function rot3(P,b,a){ // turn v about the unit field direction b by angle a (Rod
 }
 function step(P,dt){
   const ins=inBox(P.x,P.y,P.z); if(ins)P.entered=true;
-  if(ins&&P.q&&P.B){const b=bdir(P.ph),a=-(P.q*P.B/P.m)*dt/2;rot3(P,b,a);P.x+=P.vx*dt;P.y+=P.vy*dt;P.z+=P.vz*dt;rot3(P,b,a);}
+  if(ins&&P.q&&P.B){const b=P.b||bdir(P.ph),a=-(P.q*P.B/P.m)*dt/2;rot3(P,b,a);P.x+=P.vx*dt;P.y+=P.vy*dt;P.z+=P.vz*dt;rot3(P,b,a);}
   else{P.x+=P.vx*dt;P.y+=P.vy*dt;P.z+=P.vz*dt;}
   if((P.entered&&!inBox(P.x,P.y,P.z))||Math.abs(P.x)>40||Math.abs(P.y)>40||Math.abs(P.z)>40)P.alive=false;
 }
@@ -374,26 +403,29 @@ function poseQuat(bx,by,bz,vx,vy,vz){
 }
 function update3(dt){
   buildField();
+  if(rushShown()){rushHand(dt);return;}
+  cube.visible=true;
   const ph=S.phiLive*Math.PI/180, s=Math.sin(ph), c=Math.cos(ph);
-  cube.rotation.x=-ph;
-  darts.forEach(d=>d.rotation.x=-ph);
+  const tz=S.psiLive*D2R;
+  cube.rotation.set(-ph,tz,0,'YXZ');
+  darts.forEach(d=>d.rotation.set(-ph,tz,0,'YXZ'));
   const par=clamp((Math.abs(s)-0.86)/0.12,0,1);
   dartMat.opacity=dartDark.opacity=1-par; dartGroup.visible=par<0.99;
   lineMat.opacity=par; lineGroup.visible=par>0.01; lineGroup.rotation.z=s>0?0:Math.PI;
   // hand
-  const flying=main&&(S.mode==='flying'||S.mode==='paused');
+  const flying=main&&(S.mode==='flying'||S.mode==='paused'||S.mode==='replay');
   let vx=0,vy=1,vz=0,px,py,pz=0,sc,k;
   if(flying){
     const att=main.entered&&main.alive;
     if(att){const sp=Math.hypot(main.vx,main.vy,main.vz)||1;vx=main.vx/sp;vy=main.vy/sp;vz=main.vz/sp;
-      const b=bdir(main.ph);let f=[vy*b[2]-vz*b[1],vz*b[0]-vx*b[2],vx*b[1]-vy*b[0]];const fm=Math.hypot(f[0],f[1],f[2]);
+      const b=main.b||bdir(main.ph);let f=[vy*b[2]-vz*b[1],vz*b[0]-vx*b[2],vx*b[1]-vy*b[0]];const fm=Math.hypot(f[0],f[1],f[2]);
       if(main.q&&fm>1e-3){const s=Math.sign(main.q)/fm;f=f.map(x=>x*s);}else f=[-vy,vx,0];
       px=main.x+f[0]*1.35;py=main.y+f[1]*1.35;pz=main.z+f[2]*1.35;}
     else{px=-1.5;py=-BOX;}
     sc=0.78; k=1-Math.exp(-dt*(att?30:10));
   }else{ px=0;py=S.inside?2.4:0.3; sc=1.7; k=1-Math.exp(-dt*8); }
-  const bph=flying?main.ph*D2R:ph;
-  handPar=poseQuat(0,Math.sin(bph),Math.cos(bph),vx,vy,vz);
+  const bb=flying?(main.b||bdir(main.ph)):bvec(S.phiLive,S.psiLive);
+  handPar=poseQuat(bb[0],bb[1],bb[2],vx,vy,vz);
   hand.quaternion.slerp(V.Q,RM?1:k);
   const ns=hand.scale.x+(sc-hand.scale.x)*(RM?1:k); hand.scale.setScalar(ns);
   if(flying){ V.T.copy(V.palm).multiplyScalar(ns).applyQuaternion(hand.quaternion); V.a.set(px-V.T.x,py-V.T.y,pz-V.T.z); }
@@ -406,7 +438,10 @@ function update3(dt){
 function placeCam(){
   const t=S.tilt, az=0.45*t, el=0.1*t, R=60, ty=G.camY-0.9*t, z=1+0.5*t;
   cam.position.set(R*Math.sin(az)*Math.cos(el),ty+R*Math.sin(el),R*Math.cos(az)*Math.cos(el));
-  cam.up.set(0,1,0); cam.lookAt(0,ty,0);
+  cam.up.set(0,1,0); const tg=placeCam.t||(placeCam.t=new THREE.Vector3()); tg.set(0,ty,0);
+  const w=S.view; if(Math.abs(w.al)>0.01||Math.abs(w.el)>0.01){ const q=placeCam.q||(placeCam.q=new THREE.Quaternion()), eu=placeCam.e||(placeCam.e=new THREE.Euler());
+    q.setFromEuler(eu.set(w.el*D2R,w.al*D2R,0,'XYZ')).invert(); cam.position.applyQuaternion(q); cam.up.applyQuaternion(q); tg.applyQuaternion(q); }   // turning the view = the camera orbiting the cube's centre
+  cam.lookAt(tg);
   cam.left=-G.W/2/G.u*z; cam.right=G.W/2/G.u*z; cam.top=G.H/2/G.u*z; cam.bottom=-G.H/2/G.u*z; cam.updateProjectionMatrix();
 }
 function proj(x,y,z){
@@ -435,11 +470,50 @@ function launch(){
   const base=params(); main=mk(base,null);
   ghosts=(S.ghost.on&&S.app==='lab')?S.ghost.mult.map(k=>mk(ghostParams(k,base),S.ghost.v+' '+fK(k),k)):[];
   preds=S.eye?[simulate(main)].concat(ghosts.map(simulate)):[];
+  if(S.v>4&&!RM){ const w=padW(); bursts.push({x:w.x,y:w.y,z:0,t:0,ring:1}); const sw=$('#stageWrap'); try{sw.animate([{transform:'translate(0,0)'},{transform:'translate(-4px,2px)'},{transform:'translate(4px,-2px)'},{transform:'translate(-2px,1px)'},{transform:'translate(0,0)'}],{duration:260});}catch(e){} }
   if(S.app==='lab'){LOG.n++;LOG.rows.unshift({n:LOG.n,q:S.q,m:S.m,v:S.v,B:S.B,th:thetaOf(S.phi),r:rOf(base),T:S.q?2*Math.PI*S.m/(Math.abs(S.q)*S.B):Infinity,p:pitchOf(base)});if(LOG.rows.length>40)LOG.rows.pop();if(!$('#logSheet').hidden)renderLog();}
   buzz();
 }
+const FX=[];
+function boom(P){   // max-speed charge breaks out of the cube: flash, smoke, confetti in its colour
+  const c=qRGB(P.q), conf=[];
+  for(let i=0;i<22;i++){const a=Math.random()*Math.PI*2,s=140+Math.random()*220,k=Math.random()*0.6;conf.push({vx:Math.cos(a)*s,vy:Math.sin(a)*s-120,r:Math.random()*6,w:(Math.random()-0.5)*14,col:'rgb('+c.map(v=>Math.round(v+(255-v)*k)).join(',')+')'});}
+  const smoke=[];for(let i=0;i<7;i++){const a=i/7*Math.PI*2+Math.random()*0.5;smoke.push({dx:Math.cos(a)*(18+Math.random()*16),dy:Math.sin(a)*(14+Math.random()*12),r:14+Math.random()*10});}
+  FX.push({k:'boom',x:P.x,y:P.y,z:P.z,t:0,life:1.2,conf,smoke});
+  const sw=$('#stageWrap'); try{sw.animate([{transform:'translate(0,0)'},{transform:'translate(-7px,4px)'},{transform:'translate(6px,-5px)'},{transform:'translate(-4px,3px)'},{transform:'translate(2px,-1px)'},{transform:'translate(0,0)'}],{duration:380});}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([30,20,40])}catch(e){}
+}
+function star(x,y,n,r0,r1,rot){ctx.beginPath();for(let i=0;i<n*2;i++){const a=rot+i*Math.PI/n,r=i%2?r0:r1;ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}ctx.closePath();}
+function drawFX(){
+  FX.forEach(f=>{const s=proj(f.x,f.y,f.z), k=f.t/f.life;
+    if(f.k==='yeet'){ const sc=k<0.15?k/0.15*1.15:k<0.25?1.15-(k-0.15)/0.1*0.15:1, al=k>0.7?1-(k-0.7)/0.3:1, y=s.y-30-k*24;
+      ctx.save();ctx.globalAlpha=al;ctx.translate(s.x,y);ctx.scale(sc,sc);ctx.rotate(-0.12);
+      ctx.fillStyle='#FFD43B';ctx.strokeStyle=C.ink;ctx.lineWidth=3;ctx.lineJoin='round';star(0,0,12,30,52,0.1);ctx.fill();ctx.stroke();
+      ctx.font='900 26px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=5;ctx.strokeStyle='#FFFFFF';ctx.strokeText('YEET!',0,1);ctx.fillStyle=C.orangeInk;ctx.fillText('YEET!',0,1);
+      ctx.restore(); return; }
+    // boom
+    const t=f.t;
+    if(t<0.25){const q=t/0.25;ctx.globalAlpha=1-q;ctx.fillStyle='#FFD43B';ctx.strokeStyle=C.orange;ctx.lineWidth=3;star(s.x,s.y,10,20+q*30,40+q*60,q);ctx.fill();ctx.stroke();ctx.globalAlpha=1;}
+    f.smoke.forEach(m=>{const g=Math.min(1,t/0.5),al=Math.max(0,0.85-t/f.life);ctx.globalAlpha=al;ctx.fillStyle='#E4E8EF';ctx.strokeStyle='#B9C1CF';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(s.x+m.dx*(0.6+g),s.y+m.dy*(0.6+g)-t*40,m.r*(0.5+g*0.9),0,7);ctx.fill();ctx.stroke();});
+    ctx.globalAlpha=1;
+    f.conf.forEach(c=>{const x=s.x+c.vx*t,y=s.y+c.vy*t+260*t*t;ctx.save();ctx.globalAlpha=Math.max(0,1-k*k);ctx.translate(x,y);ctx.rotate(c.r+c.w*t);ctx.fillStyle=c.col;ctx.fillRect(-4,-2.5,8,5);ctx.restore();});
+    if(t>0.08&&t<0.9){const q=Math.min(1,(t-0.08)/0.12);ctx.save();ctx.globalAlpha=t>0.7?(0.9-t)/0.2:1;ctx.translate(s.x,s.y-46<34?s.y+52:s.y-46);ctx.scale(q,q);ctx.rotate(0.1);
+      ctx.font='900 24px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=5;ctx.strokeStyle='#FFFFFF';ctx.strokeText('BOOM!',0,0);ctx.fillStyle=C.ink;ctx.fillText('BOOM!',0,0);ctx.restore();}
+  });
+}
 function pop(){ if(!main)return; if(!RM)bursts.push({x:main.x,y:main.y,t:0}); S.mode='popping'; S.popT=RM?0.01:0.35; }
-function home(){main=null;ghosts=[];preds=[];S.mode='idle';S.fadeT=RM?1:0;}
+function home(){S.view.a=0;S.view.e=0;main=null;ghosts=[];preds=[];S.mode='idle';S.fadeT=RM?1:0;S.oldTrails=[];}
+function startReplay(){ if(!RM)bursts.push({x:main.x,y:main.y,z:main.z,t:0}); S.mode='replay'; S.popT=(RM?0.01:0.35)+0.4; }
+function relaunch(){   // same launch again, with any edits made while paused
+  const base={q:main.q,m:main.m,B:main.B,v:main.v}, b=bvec(S.phi,S.psi);   // a cube rolled during the replay applies from this run
+  S.oldTrails=[{pts:main.trail,q:main.q,t:0}];
+  main=mk(base,null); main.rep=true;
+  ghosts=(S.ghost.on&&S.app==='lab')?S.ghost.mult.map(k=>{const g=mk(ghostParams(k,base),S.ghost.v+' '+fK(k),k);return g;}):[];
+  preds=S.eye?[simulate(main)].concat(ghosts.map(simulate)):[];
+  S.mode='flying';
+}
+function resetCube(){ if(S.app!=='lab')return; S.phi=Math.round(S.phi/360)*360; S.psi=Math.round(S.psi/360)*360; }
 function syncMain(){if(main&&S.mode==='paused'){main.q=S.q;main.m=S.m;main.B=S.B;preds=S.eye?[simulate(main)]:[];}}
 function notice(changes,rOld,rNew){
   const parts=[], names=[];
@@ -462,6 +536,7 @@ function inField(x,y){const b=boxBounds();return x>b.x0&&x<b.x1&&y>b.y0&&y<b.y1;
 function pdist(){const a=[...pointers.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}
 
 ov.addEventListener('pointerdown',e=>{
+  if(RU.on){RU.down={x:e.clientX,y:e.clientY};return;}   // Palm Rush: swipes are read on pointerup
   const p=pt(e); try{ov.setPointerCapture(e.pointerId)}catch(_){}
   pointers.set(e.pointerId,p);
   if(pointers.size===2){ if(gesture&&gesture.hold)clearTimeout(gesture.hold); S.editing=false;
@@ -479,15 +554,20 @@ ov.addEventListener('pointerdown',e=>{
 });
 function startEdit(g,axis){ g.type='edit'; g.q0=S.q; g.m0=S.m; g.qf=S.q; g.mf=S.m; g.axis=axis; g.dir=0; g.dx=0; g.dy=0; g.pulseT=-1e9; g.r0=rOf(params(curV())); S.editing=true; S.settle=null; buzz(); }
 function pullTo(g,dy){
-  S.pullOff=clamp(dy,0,g.maxPull); let pv=r1(4*S.pullOff/g.maxPull);
+  S.pullOff=clamp(dy,0,g.maxPull); const fr=S.pullOff/g.maxPull;
+  let pv=r1(S.app==='lab'?(fr<=0.8?4*fr/0.8:fr<0.93?4:40):4*fr);   // notch: 0–4, a short flat stop, then straight to 40
+  if(S.app==='lab'){const od=pv>4; if(od&&!g.od){buzz();try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}} g.od=od;}
   if(S.app==='games'&&GM.R){ const lv=GM.R.land.v; if(!isFree('v'))pv=S.pullOff>24?lv:0; else if(Math.abs(pv-lv)<0.2)pv=lv; }
   S.pullV=pv;
 }
-function rollTo(g,dy){
-  const raw=g.phi0-dy*0.5, f=Math.round(raw/90)*90, d=raw-f, W=8;   // soft stop: within 8° of a face the cube moves slower
-  const nv=Math.abs(d)<W?f+d*Math.abs(d)/W:raw;
-  if(g.lastFace!==undefined&&(g.lastD*d<0||(d===0&&g.lastD!==0))&&g.lastFace===f)buzz();
-  g.lastFace=f; g.lastD=d; S.phiLive=nv;
+function rollAxis(g,key,raw){   // soft stop: within 8° of a face the cube moves slower; buzz when crossing a face
+  const f=Math.round(raw/90)*90, d=raw-f, W=8, nv=Math.abs(d)<W?f+d*Math.abs(d)/W:raw, st=g[key]||(g[key]={});
+  if(st.f!==undefined&&(st.d*d<0||(d===0&&st.d!==0))&&st.f===f)buzz();
+  st.f=f; st.d=d; return nv;
+}
+function rollTo(g,dx,dy){
+  S.phiLive=rollAxis(g,'sPhi',g.phi0-dy*0.5);
+  if(g.ax==='both')S.psiLive=rollAxis(g,'sPsi',g.psi0+dx*0.5);
 }
 ov.addEventListener('pointermove',e=>{
   if(!pointers.has(e.pointerId))return;
@@ -500,7 +580,8 @@ ov.addEventListener('pointermove',e=>{
     const canEdit=g.onP&&(S.mode==='idle'||(S.mode==='paused'&&S.app==='lab'));
     if(canEdit&&Math.abs(dx)>Math.abs(dy)*0.8){ startEdit(g,'q'); g.x0=e.clientX-Math.sign(dx)*(JOY.dead+6); g.y0=e.clientY; }
     else if(g.onP&&S.mode==='idle'&&dy>0&&Math.abs(dy)>Math.abs(dx)){ g.type='pull'; const w=padW(),ps=proj(w.x,w.y); g.maxPull=clamp(G.H-ps.y-14,70,420); }
-    else if(g.inField&&S.mode==='idle'){ if(isFree('Bd')||isFree('th')){g.type='rotate';g.phi0=S.phi;} else {toast('The field direction is '+lockName('Bd')+' this round.');g.type='none';} }
+    else if(g.inField&&S.app==='lab'&&(S.mode==='flying'||S.mode==='paused'||S.mode==='replay')){g.type='view';g.a0=S.view.a;g.e0=S.view.e;}   // in flight: turn the whole view, path and field together
+    else if(g.inField&&S.mode==='idle'){ if(isFree('th')){g.type='rotate';g.phi0=S.phi;g.psi0=S.psi;g.ax=(S.turn3d&&S.app==='lab')?'both':'phi';} else {toast('θ is '+lockName('th')+' this round.');g.type='none';} }
     else g.type='none';
   }
   if(g.type==='edit'){
@@ -508,7 +589,9 @@ ov.addEventListener('pointermove',e=>{
   }else if(g.type==='pull'){
     pullTo(g,dy);
   }else if(g.type==='rotate'){
-    rollTo(g,dy);
+    rollTo(g,dx,dy);
+  }else if(g.type==='view'){
+    S.view.al=rollAxis(g,'vA',g.a0+dx*0.5); S.view.el=rollAxis(g,'vE',g.e0+dy*0.5);
   }
 });
 function endPointer(e){
@@ -517,14 +600,18 @@ function endPointer(e){
   const g=gesture; if(!g)return;
   if(g.type==='pinch'){ if(pointers.size===0){ notice([['B',g.B0,S.B]],g.r0,rOf(params())); gesture=null; } return; }
   gesture=null; clearTimeout(g.hold);
-  if(g.type==='rotate')rollTo(g,e.clientY-g.y0); else if(g.type==='pull')pullTo(g,e.clientY-g.y0);
+  if(g.type==='rotate')rollTo(g,e.clientX-g.x0,e.clientY-g.y0); else if(g.type==='pull')pullTo(g,e.clientY-g.y0);
+  if(g.type==='view'){S.view.al=rollAxis(g,'vA',g.a0+(e.clientX-g.x0)*0.5);S.view.el=rollAxis(g,'vE',g.e0+(e.clientY-g.y0)*0.5);const sn=v=>{const f=Math.round(v/90)*90;return Math.abs(v-f)<6?f:v;};S.view.a=sn(S.view.al);S.view.e=sn(S.view.el);return;}
   if(g.type==='pending')onTap(p.x,p.y);
   else if(g.type==='pull'){ if(S.pullV>=0.3)launch(); else{S.pullV=0;S.pullOff=0;} }
   else if(g.type==='rotate'){
-    const f=Math.round(S.phiLive/90)*90, np=Math.abs(S.phiLive-f)<1.2?f:Math.round(S.phiLive*10)/10, okr=rollOK(normf(np));
+    const snap=v=>{const f=Math.round(v/90)*90;return Math.abs(v-f)<6?f:Math.round(v*10)/10;};   // released within 6° of a square orientation: glide onto it
+    const np=snap(S.phiLive), ns=snap(S.psiLive), okr=rollOK(normf(np));
     if(okr!==true){toast(okr);return;}
-    const moved=Math.abs(np-g.phi0)>0.05; S.phi=np;
-    if(moved){const d=faceName(np),th=Math.round(thetaOf(np));S.badgeTxt=d==='tilted'?'B tilted · θ '+th+'° → helix':'B '+d+(d.indexOf('v')>=0?': no force':'');S.hl=['B'];S.expandT=performance.now()+2500;}
+    const moved=Math.abs(np-g.phi0)>0.05||Math.abs(ns-g.psi0)>0.05;
+    if(Math.abs(np-S.phiLive)>0.05||Math.abs(ns-S.psiLive)>0.05)buzz();
+    S.phi=np; S.psi=ns;
+    if(moved){const d=faceName(np,ns),th=Math.round(thetaOf(np));S.badgeTxt=d==='tilted'?(th===90?'B turned · θ 90°: circle':'B tilted · θ '+th+'° → helix'):'B '+d+(d.indexOf(' v')>=0?': no force':'');S.hl=['B'];S.expandT=performance.now()+2500;}
   }else if(g.type==='edit'){
     S.editing=false;
     if(g.axis){ const isQ=g.axis==='q', v=isQ?S.q:S.m, w=Math.round(v); if(w!==v&&Math.abs(v-w)<0.06&&(!isQ||w!==0||S.app==='lab')&&(isQ||w>=0.5)){ S.settle={k:isQ?'q':'m',from:v,to:w,t0:performance.now()}; if(isQ){S.q=w;if(w)S.qMem=Math.abs(w);}else S.m=w; syncMain(); } }
@@ -552,16 +639,26 @@ function singleTap(x,y){
   if(S.mode==='flying'){ if(on){S.mode='paused';buzz();} return; }
   if(S.mode==='paused'){ if(on)S.mode='flying'; }
 }
+function hitPad(x,y){const w=padW(),s=proj(w.x,w.y);return Math.hypot(x-s.x,y-s.y)<34;}
 function doubleTap(x,y){
   if(S.app==='test'||(S.app==='games'&&GM.phase!=='play'))return;
+  if(S.app==='lab'&&(S.mode==='replay'||S.mode==='flying'||S.mode==='paused')){   // Lab in flight: dotted circle = charge home; anywhere else in the cube = straighten the view
+    if(hitPad(x,y)){if(S.mode==='replay')home();else pop();buzz();return;}
+    if(inField(x,y)){S.view.a=0;S.view.e=0;buzz();}
+    return;
+  }
+  if(S.mode==='replay'){home();buzz();return;}
   if(S.mode==='flying'||S.mode==='paused'){pop();return;}
   if(S.app==='games'&&S.mode==='idle'&&hitMain(x,y)){ if(!isFree('sg')){toast('The sign is '+lockName('sg')+' this round.');return;} S.q=-S.q; buzz(); return; }
   if(S.mode==='idle'&&hitMain(x,y)){
     const q0=S.q, r0=rOf(params());
     S.q=S.q>0?-S.qMem:S.q<0?0:S.qMem; buzz();
     notice([['q',q0,S.q]],r0,rOf(params()));
+    return;
   }
+  if(S.app==='lab'&&S.mode==='idle'&&cubeTilted()){resetCube();buzz();S.badgeTxt='B squared to the start';S.hl=['B'];S.expandT=performance.now()+2000;}   // charge not launched: double tap the field squares B
 }
+function cubeTilted(){return Math.abs(S.phi-Math.round(S.phi/360)*360)>0.5||Math.abs(S.psi-Math.round(S.psi/360)*360)>0.5;}
 
 /* ---------- 2D overlay drawing ---------- */
 function arrow(x1,y1,x2,y2,col,w){
@@ -590,21 +687,23 @@ function particle(x,y,q,alpha,big){
 }
 function flightOverlays(P){
   const sp=Math.hypot(P.vx,P.vy,P.vz); if(!sp)return;
-  const ux=P.vx/sp, uy=P.vy/sp, uz=P.vz/sp, b=bdir(P.ph), ps=proj(P.x,P.y,P.z);
+  const ux=P.vx/sp, uy=P.vy/sp, uz=P.vz/sp, b=P.b||bdir(P.ph), ps=proj(P.x,P.y,P.z);
   const cr=[uy*b[2]-uz*b[1],uz*b[0]-ux*b[2],ux*b[1]-uy*b[0]], cm=Math.hypot(cr[0],cr[1],cr[2]);   // |u × b| = sinθ now
   if(inBox(P.x,P.y,P.z)&&P.q&&P.B&&cm>1e-3){
     const s=Math.sign(P.q)/cm, fx=cr[0]*s, fy=cr[1]*s, fz=cr[2]*s, r=sp*cm*P.m/(Math.abs(P.q)*P.B), cs=proj(P.x+fx*r,P.y+fy*r,P.z+fz*r);
-    ctx.strokeStyle=C.grey;ctx.lineWidth=1.2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cs.x,cs.y);ctx.lineTo(ps.x,ps.y);ctx.stroke();ctx.setLineDash([]);
+    if(vis('r')){ctx.strokeStyle=C.grey;ctx.lineWidth=1.2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(cs.x,cs.y);ctx.lineTo(ps.x,ps.y);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle=C.grey;ctx.beginPath();ctx.arc(cs.x,cs.y,2.5,0,7);ctx.fill();
-    text('r '+f1(r),(cs.x+ps.x)/2,(cs.y+ps.y)/2-10,C.ink,'center');
+    if(vis('lab'))text('r '+f1(r),(cs.x+ps.x)/2,(cs.y+ps.y)/2-10,C.ink,'center');}
     const F=Math.abs(P.q)*sp*P.B*cm, L=clamp(0.5+F*0.3,0.6,2), a=proj(P.x+fx*0.45,P.y+fy*0.45,P.z+fz*0.45), e=proj(P.x+fx*(0.45+L),P.y+fy*(0.45+L),P.z+fz*(0.45+L));
-    arrow(a.x,a.y,e.x,e.y,C.orange,3.5);
+    if(vis('F')){arrow(a.x,a.y,e.x,e.y,C.orange,3.5);
     const ex=e.x-ps.x, ey=e.y-ps.y;
-    text('F '+f1(F),e.x+(ex<0?-6:6),e.y+(ey>0?10:-10),C.orangeInk,ex<0?'right':'left');
+    if(vis('lab'))text('F '+f1(F),e.x+(ex<0?-6:6),e.y+(ey>0?10:-10),C.orangeInk,ex<0?'right':'left');}
   }
+  if(inBox(P.x,P.y,P.z)&&P.q&&cm>0.02&&cm<0.98){ const d=ux*b[0]+uy*b[1]+uz*b[2], par=[d*b[0],d*b[1],d*b[2]], per=[ux-par[0],uy-par[1],uz-par[2]];
+    compArrows(ps,[P.x,P.y,P.z],per,par,1.6,sp*cm,sp*Math.abs(d),0.9); }
   const a=proj(P.x+ux*0.45,P.y+uy*0.45,P.z+uz*0.45), e=proj(P.x+ux*1.6,P.y+uy*1.6,P.z+uz*1.6), ex=e.x-ps.x, ey=e.y-ps.y;
-  arrow(a.x,a.y,e.x,e.y,C.ink,3);
-  text('v '+f1(P.v),e.x+(ex<0?-6:6),e.y+(ey<0?-10:10),C.ink,ex<0?'right':'left');
+  if(vis('v')){arrow(a.x,a.y,e.x,e.y,C.ink,3);
+  if(vis('lab'))text('v '+f1(P.v),e.x+(ex<0?-6:6),e.y+(ey<0?-10:10),C.ink,ex<0?'right':'left');}
 }
 function handLabels(){
   if(!HAS3||handAlpha<0.5||S.mode!=='idle'||S.editing)return;
@@ -615,37 +714,50 @@ function handLabels(){
   text('thumb = v',ths.x+10,ths.y-8,C.ink,'left',12);
   text('fingers = B',tps.x-6,tps.y+16,C.greenInk,'right',12);
   if(!handPar){
-    const ph=S.phiLive*Math.PI/180, fx=Math.sign(S.q)*Math.cos(ph);
-    if(Math.abs(fx)>0.15){
-      const e=proj(pc.x+fx*2.4,pc.y,pc.z);
+    const b=bvec(S.phiLive,S.psiLive), sg=Math.sign(S.q), fx=sg*b[2], fz=-sg*b[0];
+    if(Math.hypot(fx,fz)>0.15){
+      const e=proj(pc.x+fx*2.4,pc.y,pc.z+fz*2.4), rt=e.x>=pcs.x;
       arrow(pcs.x,pcs.y,e.x,e.y,C.orange,4);
-      text(S.q>0?'palm = F':'back of hand = F',e.x+(fx>0?-4:4),e.y-14,C.orangeInk,fx>0?'right':'left',12);
+      text(S.q>0?'palm = F':'back of hand = F',e.x+(rt?-4:4),e.y-14,C.orangeInk,rt?'right':'left',12);
     }
   }else text('no push: F = 0',pcs.x+30,pcs.y+30,C.orangeInk,'left',12);
 }
 function fallbackField(){
   const b=boxBounds(); ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#D5DBE6';ctx.lineWidth=1;ctx.beginPath();ctx.rect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);ctx.fill();ctx.stroke();
-  const n=clamp(Math.round(6*Math.sqrt(S.B)),3,9),sp=9/n,c=Math.cos(S.phiLive*Math.PI/180);
+  const n=clamp(Math.round(6*Math.sqrt(S.B)),3,9),sp=9/n,c=bvec(S.phiLive,S.psiLive)[2];
   ctx.strokeStyle=C.green;ctx.fillStyle=C.green;ctx.lineWidth=1.5;
   for(let i=0;i<n;i++)for(let j=0;j<n;j++){const p=proj(-BOX+sp*(i+0.5),-BOX+sp*(j+0.5));ctx.beginPath();ctx.arc(p.x,p.y,5,0,7);ctx.stroke();
     if(c>0){ctx.beginPath();ctx.arc(p.x,p.y,1.8,0,7);ctx.fill();}else{ctx.beginPath();ctx.moveTo(p.x-3,p.y-3);ctx.lineTo(p.x+3,p.y+3);ctx.moveTo(p.x+3,p.y-3);ctx.lineTo(p.x-3,p.y+3);ctx.stroke();}}
 }
+function compArrows(o,base,per,par,L,vPer,vPar,alpha){   // v split into v⊥ (across B, makes the circle) and v∥ (along B, carries it along)
+  ctx.globalAlpha=alpha; ctx.setLineDash([5,4]);
+  const a=proj(base[0]+per[0]*L,base[1]+per[1]*L,base[2]+per[2]*L), b=proj(base[0]+par[0]*L,base[1]+par[1]*L,base[2]+par[2]*L);
+  const sp=vis('per'), sl=vis('par'), lb=vis('lab');
+  if(sp)arrow(o.x,o.y,a.x,a.y,C.ink,2); if(sl)arrow(o.x,o.y,b.x,b.y,C.green,2); ctx.setLineDash([]);
+  if(sp&&lb)text('v⊥ '+f1(vPer),a.x+(a.x>=o.x?6:-6),a.y-8,C.ink,a.x>=o.x?'left':'right',12);
+  if(sl&&lb)text('v∥ '+f1(vPar),b.x+(b.x>=o.x?6:-6),b.y+10,C.greenInk,b.x>=o.x?'left':'right',12);
+  ctx.globalAlpha=1;
+}
 function thetaOf(phi){return Math.acos(clamp(Math.sin(phi*D2R),-1,1))/D2R;}
 function thetaDeg(){return thetaOf(S.phiLive);}
 function drawTheta(){
-  if(GM.det||(main&&(S.mode==='flying'||S.mode==='paused')))return;
-  const ph=S.phiLive*Math.PI/180, by=Math.sin(ph), bz=Math.cos(ph), th=Math.acos(clamp(by,-1,1));
-  const ey=S.inside?0:-BOX, R=1.3, wz=Math.abs(bz)>1e-6?Math.sign(bz):1, o=proj(0,ey,0);
+  if(GM.det||(main&&(S.mode==='flying'||S.mode==='paused'||S.mode==='replay')))return;
+  const bv=bvec(S.phiLive,S.psiLive), bx=bv[0], by=bv[1], bz=bv[2], th=Math.acos(clamp(by,-1,1));
+  const ey=S.inside?0:-BOX, R=1.3, wn=Math.hypot(bx,bz), wx=wn>1e-6?bx/wn:0, wz=wn>1e-6?bz/wn:1, o=proj(0,ey,0);
+  const st=Math.sin(th);
+  if(st>0.02&&st<0.98&&S.q){ const v=curV(), L=R*1.9, par=[by*bx,by*by,by*bz], per=[-par[0],1-par[1],-par[2]];
+    compArrows(o,[0,ey,0],per,par,L,v*st,v*Math.abs(by),Math.max(0.15,S.tilt)); }
+  if(!vis('th'))return;
   ctx.globalAlpha=Math.max(0.15,S.tilt);
-  const bE=proj(0,ey+by*R*1.6,bz*R*1.6), vE=proj(0,ey+R*1.6,0);
+  const bE=proj(bx*R*1.6,ey+by*R*1.6,bz*R*1.6), vE=proj(0,ey+R*1.6,0);
   ctx.lineWidth=2;ctx.setLineDash([4,4]);
   ctx.strokeStyle=C.green;ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(bE.x,bE.y);ctx.stroke();
   ctx.strokeStyle=C.ink;ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(vE.x,vE.y);ctx.stroke();ctx.setLineDash([]);
   ctx.strokeStyle=C.orangeInk;ctx.lineWidth=2.5;ctx.beginPath();
-  for(let i=0;i<=24;i++){const t=th*i/24,p=proj(0,ey+R*Math.cos(t),wz*R*Math.sin(t));if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);}
+  for(let i=0;i<=24;i++){const t=th*i/24,p=proj(wx*R*Math.sin(t),ey+R*Math.cos(t),wz*R*Math.sin(t));if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);}
   ctx.stroke();ctx.globalAlpha=1;
-  const m=proj(0,ey+R*1.15*Math.cos(th/2),wz*R*1.15*Math.sin(th/2));
-  text('θ '+Math.round(th*180/Math.PI)+'°',m.x+10,m.y-8,C.orangeInk,'left',13);
+  const m=proj(wx*R*1.15*Math.sin(th/2),ey+R*1.15*Math.cos(th/2),wz*R*1.15*Math.sin(th/2));
+  if(vis('lab'))text('θ '+Math.round(th*180/Math.PI)+'°',m.x+10,m.y-8,C.orangeInk,'left',13);
 }
 /* ---------- joystick editing (locked axes, rate control, detents) ---------- */
 const JOY={R:72,dead:12,q:{lo:-3,hi:3,det:[-3,-2,-1,0,1,2,3]},m:{lo:0.5,hi:5,det:[1,2,3,4,5]}};
@@ -697,31 +809,38 @@ function drawJoy(now){
 }
 function draw(now){
   const {W,H}=G; ctx.clearRect(0,0,W,H);
+  if(rushShown()){drawRush();return;}
   if(!HAS3)fallbackField();
   const rolling=gesture&&gesture.type==='rotate';
-  text('B '+S.B.toFixed(1)+' T · '+(rolling?'rolling':faceName(S.phi))+' · θ '+Math.round(thetaDeg())+'°',W-4,14,(S.hl.includes('B')&&now<S.expandT)?C.amberInk:C.greenInk,'right',13);
+  text('B '+S.B.toFixed(1)+' T · '+(rolling?'rolling':faceName(S.phi,S.psi))+' · θ '+Math.round(thetaDeg())+'°',W-4,14,(S.hl.includes('B')&&now<S.expandT)?C.amberInk:C.greenInk,'right',13);
   const w=padW(), ps=proj(w.x,w.y);
   ctx.strokeStyle=C.pad;ctx.lineWidth=2;ctx.setLineDash([5,6]);ctx.beginPath();ctx.arc(ps.x,ps.y,24,0,7);ctx.stroke();ctx.setLineDash([]);
   drawTheta();
   if(S.eye){
-    if(S.mode==='idle'&&!rolling){
-      const base=params(curV()), list=[simulate(mk(base))];
-      if(S.ghost.on)S.ghost.mult.forEach(k=>list.push(simulate(mk(ghostParams(k,base)))));
+    if(S.mode==='idle'){
+      const base=params(curV()), bl=bvec(S.phiLive,S.psiLive), mkL=p=>{const o=mk(p);o.b=bl;o.ph=S.phiLive;return o;}, list=[simulate(mkL(base))];
+      if(S.ghost.on)S.ghost.mult.forEach(k=>list.push(simulate(mkL(ghostParams(k,base)))));
       list.forEach((p,i)=>poly(p,qColor(S.q,1),2,i?0.25:0.55,[2,6]));
     }else preds.forEach((p,i)=>poly(p,qColor(S.q,1),2,i?0.2:0.4,[2,6]));
   }
   ghosts.forEach(g=>{poly(g.trail,qColor(g.q,1),3,0.3);if(g.alive){const s=proj(g.x,g.y,g.z);particle(s.x,s.y,g.q,0.4,false);text(g.tag,s.x+16,s.y-18,C.blueInk,'left',12);}});
+  S.oldTrails.forEach(o=>poly(o.pts,qColor(o.q,1),3,0.5*(1-o.t/0.7)));
   if(main)poly(main.trail,qColor(main.q,1),3,1);
   if(GM.det)drawDet();
   if(S.app==='games'&&main&&GM.R&&GM.R.G.type==='T'&&(S.mode==='flying'||S.mode==='paused'))text('t '+(main.t||0).toFixed(1)+' s',6,14,C.ink,'left',13);
   handLabels();
   if(main&&(S.mode==='flying'||S.mode==='paused')){
-    const s=proj(main.x,main.y,main.z); particle(s.x,s.y,main.q,1,true); flightOverlays(main);
+    const s=proj(main.x,main.y,main.z);
+    if(main.v>8){const sp=Math.hypot(main.vx,main.vy,main.vz)||1,u=[main.vx/sp,main.vy/sp,main.vz/sp];ctx.strokeStyle=C.orange;ctx.lineCap='round';
+      for(let i=0;i<5;i++){const off=(i-2)*0.22,len=1.2+((i*37)%5)*0.35,a=proj(main.x-u[0]*0.5+u[1]*off,main.y-u[1]*0.5-u[0]*off,main.z-u[2]*0.5),b=proj(main.x-u[0]*(0.5+len)+u[1]*off,main.y-u[1]*(0.5+len)-u[0]*off,main.z-u[2]*(0.5+len));ctx.globalAlpha=0.55;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}ctx.globalAlpha=1;}
+    particle(s.x,s.y,main.q,1,true); flightOverlays(main);
     if(S.mode==='paused'&&!S.editing)text('q '+qText(S.q)+' · m '+fv(S.m),s.x+22,s.y+24,C.ink,'left',12);
   }else if(S.mode==='idle'&&!GM.det){
     const p=mainScreen();
     if(S.pullV>0){ctx.strokeStyle=C.pad;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(ps.x,ps.y);ctx.lineTo(p.x,p.y);ctx.stroke();
-      const L=22+S.pullV*24; arrow(p.x,p.y-18,p.x,p.y-18-L,C.ink,3.5); text('v '+S.pullV.toFixed(1),p.x+12,p.y-14-L,C.ink,'left');}
+      const od=S.pullV>4, L=22+Math.min(S.pullV,4)*24+(od?60:0); if(od&&!RM){p.x+=(Math.random()-0.5)*4;p.y+=(Math.random()-0.5)*4;} arrow(p.x,p.y-18,p.x,p.y-18-L,od?C.orange:C.ink,od?5:3.5);
+      text('v '+S.pullV.toFixed(1),p.x+12,p.y-14-L,od?C.orangeInk:C.ink,'left',od?14:13);
+      if(od)text('yo...',p.x+12,p.y-14-L+20,C.orangeInk,'left',13+Math.sin(now/90)*1.5);}
     particle(p.x,p.y,S.q,S.fadeT,true);
     if(S.pullV===0&&!S.editing){
       const hq=S.hl.includes('q')&&now<S.expandT, hm=S.hl.includes('m')&&now<S.expandT;
@@ -731,7 +850,10 @@ function draw(now){
     }
   }
   if(S.editing&&gesture&&gesture.type==='edit')drawJoy(now);
-  bursts.forEach(b=>{const k=b.t/0.35,s=proj(b.x,b.y);ctx.strokeStyle=qColor(main?main.q:S.q,1);ctx.globalAlpha=1-k;ctx.lineWidth=2.5;
+  drawFX();
+  bursts.forEach(b=>{const k=b.t/0.35,s=proj(b.x,b.y,b.z||0);
+    if(b.ring){ctx.strokeStyle=C.orange;ctx.globalAlpha=1-k;ctx.lineWidth=3;ctx.beginPath();ctx.arc(s.x,s.y,18+k*70,0,7);ctx.stroke();ctx.globalAlpha=1;return;}
+   ctx.strokeStyle=qColor(main?main.q:S.q,1);ctx.globalAlpha=1-k;ctx.lineWidth=2.5;
     for(let i=0;i<10;i++){const a=i*Math.PI/5,r0=8+k*14,r2=14+k*26;ctx.beginPath();ctx.moveTo(s.x+Math.cos(a)*r0,s.y+Math.sin(a)*r0);ctx.lineTo(s.x+Math.cos(a)*r2,s.y+Math.sin(a)*r2);ctx.stroke();}
     ctx.globalAlpha=1;});
 }
@@ -750,7 +872,7 @@ function renderEq(){
       const items=S.ghost.mult.map(k=>({k,r:rOf(ghostParams(k,p)),t:S.ghost.v+' '+fK(k)})).concat([{k:1,r:rOf(p),t:'you',me:1}]).sort((a,b)=>a.k-b.k);
       line='r '+items.map(it=>'<span class="gc'+(it.me?' me':'')+'">'+it.t+' '+(isFinite(it.r)?f1(it.r):'∞')+'</span>').join('');
     }else if(exp)line='r = ('+hlv('m',fv(S.m))+' × '+v.toFixed(1)+' × sin '+Math.round(thetaDeg())+'°) / ('+hlv('q',fv(Math.abs(q)))+' × '+hlv('B',S.B.toFixed(1))+') = <b>'+f1(rOf(p))+'</b>';
-    else line='r = mv sinθ / qB = <b>'+f1(rOf(p))+'</b>'+pl;
+    else line=(pt?'r = mv⊥ / qB = <b>':'r = mv sinθ / qB = <b>')+f1(rOf(p))+'</b>'+pl;
   }else{
     const F=Math.abs(q)*v*Math.abs(bz), th=Math.round(thetaDeg());
     line=exp?'F = '+hlv('q',fv(Math.abs(q)))+' × '+v.toFixed(1)+' × '+hlv('B',S.B.toFixed(1))+' × sin '+th+'° = <b>'+f1(F)+'</b>':'F = qvB sinθ = <b>'+f1(F)+'</b> · θ '+th+'°';
@@ -763,15 +885,17 @@ function renderHint(){
   let t;
   const g=gesture, nw=performance.now();
   if(nw<S.toastT)t=S.toast;
-  else if(S.app==='test'||(S.app==='games'&&(GM.phase==='pick'||GM.phase==='result'||GM.phase==='detres')))t='';
+  else if(S.app==='test'||(S.app==='games'&&(GM.phase==='pick'||GM.phase==='result'||GM.phase==='detres'||GM.phase==='rush'||GM.phase==='menu')))t='';
   else if(S.app==='games'&&GM.phase==='detect')t=GM.det.parts.some(x=>x.P.alive)?'Watch both land.':'Tap the particle you think, or tap Can\'t tell.';
   else if(S.app==='games'&&S.mode==='idle'&&!(g&&g.type==='pull')&&!S.editing)t='Change the free reels on the charge or field, then pull to launch.';
   else if(g&&g.type==='pull')t='Release to launch. Pull further for more speed.';
   else if(g&&g.type==='rotate')t='Let go to leave B at this angle. It slows down at each face.';
   else if(S.editing)t=!g.axis?'Slide sideways for charge, up or down for mass.':'Hold to keep changing. Further out = faster. Let go to stop.';
-  else if(S.mode==='flying')t='Tap the charge to pause. Double tap to reset.';
+  else if(g&&g.type==='view')t='Turning the view: the path and the field turn together.';
+  else if(S.mode==='flying')t=S.app==='lab'?'Swipe the cube to view it from any side. Double tap the cube to straighten it, the dotted circle to bring the charge back.':'Tap the charge to pause. Double tap to reset.';
   else if(S.mode==='paused')t='Paused. Hold the charge to edit, tap to resume.';
-  else t='Pull the charge down to launch. Slide it sideways for charge, hold it for mass. Swipe the field to roll B.';
+  else if(S.mode==='replay')t='Replaying. Swipe the cube to view it from any side. Double tap the cube to straighten it, the dotted circle to bring the charge back.';
+  else t=(S.app==='lab'&&cubeTilted())?'Pull the charge down to launch. Swipe the field to roll B, double tap the field to square it.':'Pull the charge down to launch. Slide it sideways for charge, hold it for mass. Swipe the field to roll B.';
   if(t!==hintTxt){hintTxt=t;$('#hint').textContent=t;}
 }
 
@@ -779,20 +903,25 @@ function renderHint(){
 function frame(now){
   const dt=Math.min(0.033,(now-last)/1000); last=now;
   if(S.mode==='flying'){
-    const ts=S.app==='games'?2:1, n=6*ts; for(let i=0;i<n;i++){ if(main.alive)step(main,dt*ts/n); ghosts.forEach(g=>g.alive&&step(g,dt*ts/n)); }
+    const ts=S.app==='games'?2:1, n=(main.v>6?18:6)*ts, fine=main.v>6; for(let i=0;i<n;i++){ if(main.alive){step(main,dt*ts/n);if(fine&&i%3===2)main.trail.push([main.x,main.y,main.z]);} ghosts.forEach(g=>g.alive&&step(g,dt*ts/n)); }
     main.trail.push([main.x,main.y,main.z]); ghosts.forEach(g=>g.alive&&g.trail.push([g.x,g.y,g.z]));
     if(main.trail.length>3000)main.trail.shift();
     main.t=(main.t||0)+dt*ts;
-    if(!main.alive){ if(S.app==='games'&&GM.phase==='play')gameFinish(); pop(); }
+    if(!main.alive){ if(S.app==='lab')startReplay(); else { if(S.app==='games'&&GM.phase==='play')gameFinish(); pop(); } }
   }else if(S.mode==='popping'){ S.popT-=dt; if(S.popT<=0)home(); }
+  else if(S.mode==='replay'){ S.popT-=dt; if(S.popT<=0)relaunch(); }
+  S.oldTrails.forEach(o=>o.t+=dt); S.oldTrails=S.oldTrails.filter(o=>o.t<0.7);
   if(GM.det&&GM.phase==='detect'){GM.det.parts.forEach(d=>{if(!d.P.alive)return;for(let i=0;i<12&&d.P.alive;i++)step(d.P,dt/6);d.P.trail.push([d.P.x,d.P.y]);});}
   bursts.forEach(b=>b.t+=dt); bursts=bursts.filter(b=>b.t<0.35);
+  FX.forEach(f=>f.t+=dt); for(let i=FX.length-1;i>=0;i--)if(FX[i].t>=FX[i].life)FX.splice(i,1);
   if(S.fadeT<1)S.fadeT=Math.min(1,S.fadeT+dt/0.3);
-  if(!(gesture&&gesture.type==='rotate'))S.phiLive+=(S.phi-S.phiLive)*(RM?1:Math.min(1,dt*12));
-  const hx=main&&(S.mode==='flying'||S.mode==='paused')&&(()=>{const s=Math.abs(cosPh(main.ph));return s>0.02&&s<0.98;})();
-  const tt=hx?0.75:(S.mode==='flying'||S.mode==='paused'||(gesture&&gesture.type==='pull')||GM.det)?0:1; S.tilt+=(tt-S.tilt)*(RM?1:Math.min(1,dt*5));
+  if(!(gesture&&gesture.type==='view')){const kv=RM?1:Math.min(1,dt*10);S.view.al+=(S.view.a-S.view.al)*kv;S.view.el+=(S.view.e-S.view.el)*kv;}
+  if(!(gesture&&gesture.type==='rotate')){S.phiLive+=(S.phi-S.phiLive)*(RM?1:Math.min(1,dt*12));S.psiLive+=(S.psi-S.psiLive)*(RM?1:Math.min(1,dt*12));}
+  const hx=main&&(S.mode==='flying'||S.mode==='paused'||S.mode==='replay')&&(()=>{const b=main.b||bdir(main.ph);return Math.abs(b[2])<0.98&&Math.abs(b[1])<0.98;})();
+  const tt=RU.on?0:hx?0.75:(S.mode==='flying'||S.mode==='paused'||S.mode==='replay'||(gesture&&gesture.type==='pull')||GM.det)?0:1; S.tilt+=(tt-S.tilt)*(RM?1:Math.min(1,dt*5));
   if(HAS3){placeCam();update3(dt);renderer.render(scene,cam);}
   if(S.editing&&gesture&&gesture.type==='edit')joyStep(dt,now);
+  rushStep(dt);
   if(S.settle){const st=S.settle,k=RM?1:Math.min(1,(now-st.t0)/160),v=k<1?st.from+(st.to-st.from)*(1-Math.pow(1-k,3)):st.to; if(st.k==='q')S.q=v; else S.m=v; if(k>=1)S.settle=null; syncMain();}
   draw(now); renderEq(); renderHint();
   requestAnimationFrame(frame);
@@ -819,7 +948,7 @@ $('#gMult').addEventListener('click',e=>{const b=e.target.closest('button');if(!
 const tonesEl=$('#tones');
 TONES.forEach((t,i)=>{const b=document.createElement('button');b.style.background=t;b.setAttribute('aria-label','Skin tone '+(i+1));b.dataset.i=i;tonesEl.appendChild(b);});
 function syncHand(){
-  $('#hOn').checked=S.hand; $('#handBtn').setAttribute('aria-pressed',S.hand);
+  $('#hOn').checked=S.hand; $('#t3On').checked=S.turn3d; $('#cleanOn').checked=S.clean; $('#vGrid').classList.toggle('off',S.clean); document.querySelectorAll('#vGrid input').forEach(i=>i.checked=S.show[i.dataset.k]); $('#handBtn').setAttribute('aria-pressed',S.hand);
   tonesEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===S.tone));
   if(HAS3)skinMat.color.set(TONES[S.tone]);
 }
@@ -827,11 +956,14 @@ $('#handBtn').addEventListener('click',()=>{syncHand();sheet('hand',true);});
 $('#handBack').addEventListener('click',()=>sheet('hand',false));
 $('#hDone').addEventListener('click',()=>sheet('hand',false));
 $('#hOn').addEventListener('change',e=>{S.hand=e.target.checked;save();syncHand();});
+$('#t3On').addEventListener('change',e=>{S.turn3d=e.target.checked; if(!S.turn3d)S.psi=Math.round(S.psi/360)*360; save();});
+$('#cleanOn').addEventListener('change',e=>{S.clean=e.target.checked;save();syncHand();});
+$('#vGrid').addEventListener('change',e=>{const k=e.target.dataset.k;if(!k)return;S.show[k]=e.target.checked;if(e.target.checked)S.clean=false;save();syncHand();});
 tonesEl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.tone=+b.dataset.i;save();syncHand();});
 
 /* ---------- modes: Lab / Games / Test ---------- */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-const VK=['aq','sg','m','v','Bs','Bd','th'];
+const VK=['aq','sg','m','v','Bs','th'];
 const VN={aq:'|q|',sg:'+ / −',m:'m',v:'v',Bs:'B',Bd:'B dir',th:'θ'};
 const VS={aq:'charge size',sg:'sign of q',m:'mass',v:'speed',Bs:'B strength',Bd:'B direction',th:'angle B to v'};
 const RANGE={aq:[0.1,3],m:[0.5,5],v:[0.3,4],Bs:[0.2,2]};
@@ -844,7 +976,6 @@ const GOALS={
   fStrong:{type:'F',text:'Make the push stronger',rel:['aq','v','Bs','th'],want:1},
   tSoon:{type:'T',text:'Make it come back sooner',rel:['aq','m','Bs'],want:-1},
   tLong:{type:'T',text:'Make it come back later',rel:['aq','m','Bs'],want:1},
-  turn:{type:'dir',text:'Make it turn the other way',rel:['sg','Bd']},
   det:{type:'det',text:'Detective'}
 };
 const ASK={r:'the size of the circle',T:'how long one lap takes',dir:'which way it turns',F:'how strong the push (force) is'};
@@ -892,7 +1023,7 @@ function genRound(key){
     let W=land;R.free.forEach(x=>{W=best(W,x);});
     if(okGoal(R,W)){R.par=R.free.length;return R;}
   }
-  return genRound('turn');
+  return genRound(pick(['rSmall','rBig','fWeak','fStrong']));
 }
 function isFree(k){return S.app!=='games'||!GM.R||GM.phase!=='play'||GM.R.free.includes(k);}
 function lockName(k){return GM.R&&GM.R.locked.includes(k)?'locked':'fixed';}
@@ -922,7 +1053,7 @@ function rollOK(ph){
   if(S.app!=='games'||!GM.R||GM.phase!=='play')return true;
   const L=GM.R.land.ph;
   if(!isFree('th')&&Math.abs(thOf(ph)-thOf(L))>1)return 'θ is '+lockName('th')+' at '+Math.round(thOf(L))+'° this round.';
-  const c=cosPh(ph); if(!isFree('Bd')&&Math.abs(c)>0.02&&Math.sign(c)!==Math.sign(cosPh(L)))return 'B direction is '+lockName('Bd')+' this round.';
+  const c=cosPh(ph); if(Math.abs(c)>0.02&&Math.sign(c)!==Math.sign(cosPh(L)))return 'B can tilt but not flip to the other side.';
   return true;
 }
 function animStrip(st,seq,dur,delay,end){
@@ -944,14 +1075,14 @@ function showResult(title,body,act){const c=$('#resultCard');c.innerHTML='<div c
 function starStr(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
 
 function newRound(){
-  home(); S.inside=false; hideResult();
+  RU.on=false; home(); S.inside=false; hideResult();
   GM.round++; GM.tries=0; GM.launches=0; GM.fails=0; GM.picks=new Set(); GM.bad={}; GM.det=null; GM.spinning=false;
-  const keys=['rSmall','rBig','tSoon','tLong','turn','fWeak','fStrong'];
-  GM.key=(GM.round>1&&Math.random()<0.2)?'det':pick(keys);
-  GM.R=GM.key==='det'?null:genRound(GM.key);
+  const keys=['rSmall','rBig','tSoon','tLong','fWeak','fStrong'];
+  GM.game='spin'; GM.key=GM.round>1&&Math.random()<0.2?'det':pick(keys);
+  GM.R=(GM.key==='det'||GM.key==='rush')?null:genRound(GM.key);
   const st=GM.stats[GM.key]||(GM.stats[GM.key]={rounds:0,streak:0});
   GM.showF=st.rounds<2;
-  GM.auto=GM.key!=='det'&&st.streak>=3&&Math.random()>0.25;
+  GM.auto=GM.key!=='det'&&GM.key!=='rush'&&st.streak>=3&&Math.random()>0.25;
   GM.phase='pick'; renderPick(); showPanel(true); renderBar();
   const words=[]; const all=Object.values(GOALS).map(g=>g.text);
   for(let i=0;i<9;i++)words.push(pick(all)); words.push(GOALS[GM.key].text);
@@ -964,7 +1095,7 @@ function newRound(){
 }
 function renderPick(){
   GM.goalLanded=false;
-  $('#gamePanel').innerHTML='<div class="gcard" id="gCard"><div class="glabel"><span>GOAL</span><span>Round '+GM.round+' · ★ '+GM.stars+'</span></div>'+
+  $('#gamePanel').innerHTML='<button class="backchip" data-act="menu">‹ All games</button><div class="gcard" id="gCard"><div class="glabel"><span>GOAL</span><span>Round '+GM.round+' · ★ '+GM.stars+'</span></div>'+
     '<div class="win goalwin"><div class="strip" id="goalStrip"><span>&nbsp;</span></div></div>'+
     '<div class="formula" id="gF"></div><div class="muted" id="gSub"></div></div>'+
     '<div class="ginstr" id="gInstr"></div><div class="reels" id="reels"></div>'+
@@ -1021,14 +1152,15 @@ function enterPlay(){
   setTimeout(()=>{S.phi=R.land.ph;},150);
 }
 function renderBar(){
-  const bar=$('#gameBar'), show=S.app==='games'&&GM.phase!=='pick'&&GM.phase!=='off';
+  const bar=$('#gameBar'), show=S.app==='games'&&GM.phase!=='pick'&&GM.phase!=='off'&&GM.phase!=='menu';
   bar.hidden=!show; if(!show)return;
+  if(RU.on){bar.innerHTML='<div class="bl"><span><button class="backchip" data-act="rmenu" aria-label="Palm Rush modes">‹</button><b>'+RMODES[RU.mode].name+'</b></span><span class="muted">block '+Math.min(RU.i+1,RU.n)+' of '+RU.n+' · ✓ '+RU.score+' · streak '+RU.streak+'</span></div><div class="muted">Swipe the way the force pushes the charge. Tap if there is no force.</div>';return;}
   if(GM.det){const d=GM.det;
     bar.innerHTML='<div class="held"><span class="muted">Held equal</span>'+d.held.map(x=>'<span class="hchip">same '+x+'</span>').join('')+'</div>'+
-      '<div class="bq">Which one has the '+d.ask+' '+DN[d.hid]+'?</div>'+(GM.phase==='detect'?'<button class="sec" data-act="cant">Can\'t tell</button>':'');
+      '<div class="bq"><button class="backchip" data-act="menu" aria-label="All games">‹</button>Which one has the '+d.ask+' '+DN[d.hid]+'?</div>'+(GM.phase==='detect'?'<button class="sec" data-act="cant">Can\'t tell</button>':'');
     return;}
-  const R=GM.R;
-  bar.innerHTML='<div class="bl"><b>'+R.G.text+'</b><span class="muted">'+targetText(R)+' · par '+R.par+' · ★ '+GM.stars+'</span></div><div class="chips">'+
+  const R=GM.R; if(!R){bar.hidden=true;return;}
+  bar.innerHTML='<div class="bl"><span><button class="backchip" data-act="menu" aria-label="All games">‹</button><b>'+R.G.text+'</b></span><span class="muted">'+targetText(R)+' · par '+R.par+' · ★ '+GM.stars+'</span></div><div class="chips">'+
     VK.map(k=>{const L=R.locked.includes(k),F=R.free.includes(k),f=R.factor[k];
       return '<div class="chip '+(L?'locked':F?'free':'fixed')+'"><b>'+(L?(k==='sg'?'q '+lockVal(k):VN[k]+' '+lockVal(k)):VN[k])+'</b><span>'+(L?'locked':F?'free':'fixed')+'</span></div>';}).join('')+'</div>';
 }
@@ -1055,7 +1187,7 @@ function gameFinish(){
   if(ok){
     const atPar=changed.length<=R.par, n=1+(atPar?1:0)+(atPar&&GM.launches===1?1:0);
     GM.stars+=n; save();
-    showResult('Solved '+starStr(n),'<div class="muted">'+line+'</div><div class="muted">You changed '+changed.length+' thing'+(changed.length===1?'':'s')+' (par '+R.par+')'+(GM.launches===1?', on your first launch.':'.')+'</div>','<button class="primary" data-act="next">Next round</button>');
+    showResult('Solved '+starStr(n),'<div class="muted">'+line+'</div><div class="muted">You changed '+changed.length+' thing'+(changed.length===1?'':'s')+' (par '+R.par+')'+(GM.launches===1?', on your first launch.':'.')+'</div>','<button class="sec" data-act="menu">All games</button><button class="primary" data-act="next">Next round</button>');
   }else{
     GM.fails++;
     showResult('Not yet','<div class="muted">'+line+'</div>'+(GM.fails>=2?'<div class="why"><span class="tag">?</span><span>'+nudge(R)+'</span></div>':''),'<button class="sec" data-act="next">New round</button><button class="primary" data-act="close">Keep trying</button>');
@@ -1103,6 +1235,9 @@ function drawDet(){
 }
 $('#gamePanel').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
+  if(b.dataset.game){startGame(b.dataset.game);return;}
+  if(b.dataset.rmode){startRush(b.dataset.rmode);return;}
+  if(b.dataset.act==='menu'){showGameMenu();return;}
   if(b.id==='spinBtn'){trySpin();return;}
   const k=b.dataset.k; if(!k||!GM.goalLanded||GM.spinning||GM.phase!=='pick')return;
   if(GM.picks.has(k))GM.picks.delete(k);else GM.picks.add(k);
@@ -1110,10 +1245,22 @@ $('#gamePanel').addEventListener('click',e=>{
 });
 $('#resultCard').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
-  if(b.dataset.act==='next')newRound();
+  if(b.dataset.act==='next'){if(GM.game==='rush'){hideResult();startRush(RU.mode);}else newRound();}
+  else if(b.dataset.act==='menu')showGameMenu();
+  else if(b.dataset.act==='rmenu')showRushMenu();
   else if(b.dataset.act==='close'){hideResult();GM.phase='play';renderBar();}
 });
-$('#gameBar').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.act==='cant')detAnswer('cant');});
+$('#gameBar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.act==='cant')detAnswer('cant');else if(b.dataset.act==='menu')showGameMenu();else if(b.dataset.act==='rmenu')showRushMenu();});
+function showGameMenu(){
+  RU.on=false; home(); hideResult(); GM.det=null; GM.R=null; GM.phase='menu'; renderBar();
+  $('#gamePanel').innerHTML='<div class="glabel" style="padding:4px 2px 0"><span>CHOOSE A GAME</span><span>★ '+GM.stars+'</span></div>'+
+   '<button class="gm" data-game="spin"><span class="gm-ic" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="5" height="14" rx="1.5"></rect><rect x="9.5" y="5" width="5" height="14" rx="1.5"></rect><rect x="16" y="5" width="5" height="14" rx="1.5"></rect><path d="M4.5 12h2M11 12h2M17.5 12h2"></path></svg></span>'+
+   '<span class="gm-t">Spin &amp; Solve</span><span class="gm-s">A goal reel spins. Pick the variables that matter, then change the free ones to win. Includes Detective rounds.</span></button>'+
+   '<button class="gm" data-game="rush"><span class="gm-ic" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12V6.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M10 10.5V4.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M13 10.5V5.5a1.5 1.5 0 0 1 3 0V12"></path><path d="M16 11V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-5-2.7L4.2 15a1.6 1.6 0 0 1 2.6-1.8L8 14.5"></path></svg></span>'+
+   '<span class="gm-t">Palm Rush</span><span class="gm-s">Field cubes fly at you. Swipe the way the force pushes the charge, using the right-hand palm rule.</span></button>';
+  showPanel(true);
+}
+function startGame(g){ GM.game=g; if(g==='rush')showRushMenu(); else newRound(); }
 
 /* ---------- Testing: example questions ---------- */
 const TQ=[
@@ -1169,18 +1316,18 @@ $('#testPanel').addEventListener('click',e=>{
 let labSnap=null, labEye=true, labGhost=false;
 function setMode(m){
   if(m===S.app)return;
-  if(S.app==='lab'){labSnap={q:S.q,qMem:S.qMem,m:S.m,B:S.B,phi:S.phi,v:S.v,inside:S.inside};labEye=S.eye;labGhost=S.ghost.on;}
+  if(S.app==='lab'){labSnap={q:S.q,qMem:S.qMem,m:S.m,B:S.B,phi:S.phi,psi:S.psi,v:S.v,inside:S.inside};labEye=S.eye;labGhost=S.ghost.on;}
   S.app=m; $('#app').dataset.app=m;
   document.querySelectorAll('#modes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));
-  home(); hideResult(); GM.det=null; GM.R=null; GM.phase='off'; showPanel(false); S.editing=false; gesture=null; S.toastT=0;
+  RU.on=false; home(); hideResult(); GM.det=null; GM.R=null; GM.phase='off'; showPanel(false); S.editing=false; gesture=null; S.toastT=0;
   $('#testPanel').hidden=m!=='test'; $('#gameBar').hidden=true;
   if(m==='lab'){
     if(labSnap)Object.assign(S,labSnap);
     S.eye=labEye; S.ghost.on=labGhost;
     $('#eyeBtn').setAttribute('aria-pressed',S.eye); syncGhost();
     $('#startBtn').textContent='Start: '+(S.inside?'inside':'outside');
-  }else{S.eye=false; S.ghost.on=false; S.inside=false;}
-  if(m==='games')newRound();
+  }else{S.eye=false; S.ghost.on=false; S.inside=false; S.psi=0;}
+  if(m==='games')showGameMenu();
   if(m==='test')renderTest(true);
 }
 $('#modes').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m);});
@@ -1206,10 +1353,213 @@ $('#logBack').addEventListener('click',()=>openLog(false));
 $('#logDone').addEventListener('click',()=>openLog(false));
 $('#logClear').addEventListener('click',()=>{LOG.rows=[];renderLog();});
 applyChrome();
+/* ---------- Palm Rush: Basic (2D exam view) and I like the way u dance (3D chase view) ---------- */
+const RU={on:false};
+function rushShown(){return RU.on||(RU.done&&S.app==='games'&&GM.phase==='result'&&GM.game==='rush');}   // keep the last run on screen behind the result card
+const RMODES={basic:{name:'Basic',tag:'2D · exam view',cap:"You'll look weird."},dance:{name:'I like the way u dance',tag:'3D · hard',cap:"You'll twist your shoulder."}};
+const AX=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+const vadd=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]], vsub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]], vmul=(a,k)=>[a[0]*k,a[1]*k,a[2]*k], vdot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2], vneg=a=>[-a[0],-a[1],-a[2]];
+const vnorm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];};
+function crossV(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function rushStats(m){const k=m==='dance'?'rushD':'rushB';const s=GM.stats[k]||(GM.stats[k]={rounds:0,streak:0});if(s.help==null)s.help=1;if(s.correct==null)s.correct=0;if(s.best==null)s.best=0;return s;}
+function showRushMenu(){
+  RU.on=false; home(); hideResult(); GM.det=null; GM.R=null; GM.phase='menu'; GM.game='rush'; renderBar();
+  const card=m=>{const M=RMODES[m],st=rushStats(m);return '<button class="gm rm'+(m==='dance'?' dark':'')+'" data-rmode="'+m+'"><span class="gm-t">'+M.name+'</span><span class="rtag">'+M.tag+'</span><span class="gm-s">'+M.cap+'</span><span class="rbest">Best '+starStr(st.best)+'</span></button>';};
+  $('#gamePanel').innerHTML='<button class="backchip" data-act="menu">‹ All games</button><div class="glabel" style="padding:4px 2px 0"><span>PALM RUSH</span><span>★ '+GM.stars+'</span></div>'+
+    '<div class="gm-s" style="padding:0 2px">Right hand: fingers along B, thumb along v, the palm pushes F. Each session draws one charge at random and keeps it for all 10 blocks.</div>'+card('basic')+card('dance');
+  showPanel(true);
+}
+function startRush(mode){
+  mode=mode||RU.mode||'basic'; showPanel(false); home(); hideResult(); S.inside=false; S.tilt=0;
+  const D=mode==='dance', st=rushStats(mode);
+  Object.assign(RU,{on:true,mode,D,st,q:Math.random()<0.5?1:-1,i:0,n:10,score:0,streak:0,best:0,phase:'reveal',t:0,answer:null,down:null,
+    p:[0,0,0],f:D?[0,0,-1]:[0,1,0],u:D?[0,1,0]:[0,0,1],trail:[[0,0,0]],past:[],s:0,ok:false});
+  RU.fs=RU.f.slice(); RU.us=RU.u.slice(); RU.cam=[0,1.6];
+  RU.obs=makeObs(); GM.game='rush'; GM.phase='rush'; renderBar();
+}
+function makeObs(){   // the next field block: B random, and the right answer worked out from F = q v × B
+  const D=RU.D, f=RU.f, u=RU.u, R=D?1.5:2, gap=D?Math.max(3,8-0.5*RU.i):Math.max(2.5,7-0.5*RU.i);
+  let B;
+  if(Math.random()<1/6)B=Math.random()<0.5?f.slice():vneg(f);
+  else if(D)B=pick(AX.filter(a=>Math.abs(vdot(a,f))<0.5));
+  else B=pick([[0,0,1],[0,0,-1]]);
+  const Fv=vmul(crossV(f,B),RU.q), Fd=Math.hypot(Fv[0],Fv[1],Fv[2])>0.1?vnorm(Fv):null;
+  const sr=D?crossV(f,u):[1,0,0], su=D?u.slice():[0,1,0], so=crossV(sr,su), toS=v=>[vdot(v,sr),vdot(v,su),vdot(v,so)];
+  let ans='none'; if(Fd){const a=vdot(Fd,sr),b=vdot(Fd,su);ans=Math.abs(a)>Math.abs(b)?(a>0?'right':'left'):(b>0?'up':'down');}
+  return {entry:vadd(RU.p,vmul(f,gap)),f:f.slice(),u:u.slice(),B,Fd,R,ans,bs:toS(B),vs:toS(f),sr,su};
+}
+function sWord(v,D){const ax=Math.abs(v[0]),ay=Math.abs(v[1]),az=Math.abs(v[2]);
+  if(az>ax&&az>ay)return v[2]>0?(D?'towards you':'out of the page'):(D?'away from you':'into the page');
+  return ax>ay?(v[0]>0?'right':'left'):(v[1]>0?'up':'down');}
+function rushInput(dir){
+  if(!RU.on)return;
+  if(RU.phase==='reveal'){RU.phase='approach';RU.t=0;return;}
+  if(RU.phase==='approach'&&RU.answer==null){RU.answer=dir;buzz();}
+  else if(RU.phase==='feedback')rushNext();
+}
+function rushResolve(){
+  const o=RU.obs, st=RU.st;
+  RU.ok=RU.answer===o.ans;
+  if(RU.ok){RU.score++;RU.streak++;RU.best=Math.max(RU.best,RU.streak);st.correct++;st.help=Math.max(0,st.help-0.2);buzz();}
+  else{RU.streak=0;st.help=Math.min(1,st.help+0.4);try{navigator.vibrate&&navigator.vibrate([20,40,20])}catch(e){}}
+  save(); RU.phase='turn'; RU.s=0; renderBar();
+}
+function rushNext(){
+  RU.i++;
+  if(RU.i>=RU.n){endRush();return;}
+  RU.obs=makeObs(); RU.answer=null; RU.phase='approach'; RU.t=0; renderBar();
+}
+function endRush(){
+  RU.on=false; RU.done=true; const st=RU.st; st.rounds=(st.rounds||0)+1;
+  const n=RU.score>=10?3:RU.score>=8?2:RU.score>=6?1:0; st.best=Math.max(st.best||0,n);
+  GM.stars+=n; save(); GM.phase='result';
+  showResult(RMODES[RU.mode].name+' '+starStr(n),'<div class="muted">'+RU.score+' of '+RU.n+' right · best streak '+RU.best+' · '+(RU.q>0?'proton +':'electron −')+'</div>'+
+    (RU.score<RU.n?'<div class="why"><span class="tag">✋</span><span>Fingers along B, thumb along v, the palm pushes a positive charge. An electron gets pushed out of the back of the hand.</span></div>':''),
+    '<button class="sec" data-act="rmenu">Modes</button><button class="primary" data-act="next">Play again</button>');
+  renderBar();
+}
+function rushStep(dt){
+  if(!RU.on)return;
+  const o=RU.obs, sp=RU.D?2.6:2.4;
+  if(RU.phase==='reveal'){RU.t+=dt;if(RU.t>=(RM?0.6:1.7)){RU.phase='approach';RU.t=0;}}
+  else if(RU.phase==='approach'){
+    const dist=vdot(vsub(o.entry,RU.p),RU.f), untimed=RU.st.help>0.5&&RU.i<3;
+    let mv=(RU.answer!=null?sp*4:sp)*dt;
+    if(RU.answer==null&&untimed)mv=Math.min(mv,Math.max(0,dist-0.7));
+    mv=Math.min(mv,Math.max(0,dist)); RU.p=vadd(RU.p,vmul(RU.f,mv));
+    if(dist-mv<=1e-6){if(RU.answer==null)RU.answer='late';RU.p=o.entry.slice();rushResolve();}
+  }else if(RU.phase==='turn'){
+    const L=o.Fd?o.R*Math.PI/2:(RU.D?2*o.R:o.R); RU.s=Math.min(L,RU.s+sp*1.2*dt);
+    if(o.Fd){const th=RU.s/o.R;RU.p=vadd(vadd(o.entry,vmul(o.f,o.R*Math.sin(th))),vmul(o.Fd,o.R*(1-Math.cos(th))));}
+    else RU.p=vadd(o.entry,vmul(o.f,RU.s));
+    if(RU.s>=L){
+      if(o.Fd){const k=vnorm(crossV(o.f,o.Fd));RU.u=vadd(crossV(k,RU.u),vmul(k,vdot(k,RU.u)));RU.f=o.Fd.slice();}   // the frame turns with the charge, so swipes stay screen-relative
+      RU.past.unshift(o); if(RU.past.length>2)RU.past.pop();
+      if(RU.ok)rushNext(); else {RU.phase='feedback';RU.t=0;}
+    }
+  }else if(RU.phase==='feedback'){RU.t+=dt;if(RU.t>=5)rushNext();}
+  const tr=RU.trail, last=tr[tr.length-1]; if(Math.hypot(...vsub(RU.p,last))>0.08){tr.push(RU.p.slice());if(tr.length>500)tr.shift();}
+  const k=1-Math.exp(-dt*(RM?60:5));
+  if(RU.D){RU.fs=vnorm(vadd(RU.fs,vmul(vsub(RU.f,RU.fs),k)));let us=vadd(RU.us,vmul(vsub(RU.u,RU.us),k));us=vsub(us,vmul(RU.fs,vdot(us,RU.fs)));RU.us=vnorm(us);}
+  else{const tg=[RU.p[0]+RU.f[0]*2.2,RU.p[1]+RU.f[1]*2.2],kc=1-Math.exp(-dt*(RM?60:3));RU.cam[0]+=(tg[0]-RU.cam[0])*kc;RU.cam[1]+=(tg[1]-RU.cam[1])*kc;}
+}
+function rushHand(dt){   // the 3D hand, posed for the current block in screen terms; it fades as the student gets blocks right
+  cube.visible=false; dartGroup.visible=false; lineGroup.visible=false;
+  const o=RU.phase==='feedback'&&RU.past[0]?RU.past[0]:RU.obs; if(!o)return;
+  handPar=poseQuat(o.bs[0],o.bs[1],o.bs[2],o.vs[0],o.vs[1],o.vs[2]);
+  if(!RU.qv)RU.qv=new THREE.Quaternion().setFromEuler(new THREE.Euler(25*D2R,-25*D2R,0,'XYZ'));
+  V.Q.premultiply(RU.qv);
+  hand.quaternion.slerp(V.Q,RM?1:1-Math.exp(-dt*10));
+  thumbG.rotation.z+=((handPar?-Math.PI/2:0)-thumbG.rotation.z)*Math.min(1,dt*10);
+  hand.scale.setScalar(1.2);
+  cam.updateMatrixWorld(); V.a.set(0.52,0.55,0).unproject(cam); hand.position.set(V.a.x,V.a.y,0);
+  const want=RU.phase==='reveal'?0:RU.phase==='feedback'?1:RU.st.help; handAlpha+=(want-handAlpha)*Math.min(1,dt*6);
+  skinMat.opacity=handAlpha; nailMat.opacity=handAlpha*0.5; hand.visible=handAlpha>0.02;
+}
+function wrapText(s,x,y,maxW,lh,col,size){
+  ctx.font='700 '+size+'px '+FONT; let line='', yy=y;
+  for(const w of s.split(' ')){const t=line?line+' '+w:w; if(ctx.measureText(t).width>maxW&&line){text(line,x,yy,col,'left',size);line=w;yy+=lh;}else line=t;}
+  if(line)text(line,x,yy,col,'left',size);
+}
+/* Basic: top-down page, always upright; the camera pans after the charge */
+function sB(P){const u=RU.sc;return {x:G.W/2+(P[0]-RU.cam[0])*u,y:G.H*0.56-(P[1]-RU.cam[1])*u};}
+function drawPanelB(o,alpha){
+  const f=o.f, sd=[-f[1],f[0],0], R=o.R, u=RU.sc, P=(a,c)=>sB(vadd(vadd(o.entry,vmul(f,a)),vmul(sd,c)));
+  const c=[P(0,-3),P(0,3),P(R,3),P(R,-3)];
+  ctx.globalAlpha=alpha; ctx.fillStyle='rgba(30,138,76,0.12)'; ctx.strokeStyle=C.green; ctx.lineWidth=1.5;
+  ctx.beginPath(); c.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.closePath(); ctx.fill(); ctx.stroke();
+  const along=vdot(o.B,f), r=u*0.13; ctx.lineWidth=2; ctx.fillStyle=C.green;
+  for(const cc of [-2.25,-0.75,0.75,2.25]){
+    if(Math.abs(along)>0.5){const s=Math.sign(along),a=P(R/2-s*R*0.32,cc),b=P(R/2+s*R*0.32,cc);arrow(a.x,a.y,b.x,b.y,C.green,2);}
+    else for(const aa of [R*0.27,R*0.73]){const p=P(aa,cc);ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
+      if(o.B[2]>0){ctx.beginPath();ctx.arc(p.x,p.y,r*0.32,0,7);ctx.fill();}
+      else{const q=r*0.6;ctx.beginPath();ctx.moveTo(p.x-q,p.y-q);ctx.lineTo(p.x+q,p.y+q);ctx.moveTo(p.x+q,p.y-q);ctx.lineTo(p.x-q,p.y+q);ctx.stroke();}}
+  }
+  ctx.globalAlpha=1;
+}
+/* Dance: chase camera behind, above and a little to the side */
+function camD(){const fs=RU.fs,us=RU.us,rs=crossV(fs,us);const pos=vadd(vadd(vsub(RU.p,vmul(fs,6)),vmul(us,4.5)),vmul(rs,-1.5));const tg=vadd(RU.p,vmul(fs,3));const fc=vnorm(vsub(tg,pos)),rc=vnorm(crossV(fc,us)),uc=crossV(rc,fc);return {pos,fc,rc,uc,fl:Math.min(G.W,G.H)*1.05};}
+function sD(P,c){const d=vsub(P,c.pos),z=vdot(d,c.fc);if(z<0.3)return null;return {x:G.W/2+c.fl*vdot(d,c.rc)/z,y:G.H*0.52-c.fl*vdot(d,c.uc)/z,z};}
+function drawBlockD(o,c,alpha){
+  const R=o.R, ctr=vadd(o.entry,vmul(o.f,R)), corner=(i,j,k)=>sD(vadd(ctr,[i*R,j*R,k*R]),c);
+  const F=[[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1]],[[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],[[-1,-1,-1],[-1,1,-1],[-1,1,1],[-1,-1,1]],[[1,-1,-1],[1,1,-1],[1,1,1],[1,-1,1]],[[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]],[[-1,1,-1],[1,1,-1],[1,1,1],[-1,1,1]]];
+  ctx.globalAlpha=alpha; ctx.fillStyle='rgba(30,138,76,0.07)'; ctx.strokeStyle=C.green; ctx.lineWidth=1.4;
+  for(const fq of F){const pts=fq.map(v=>corner(...v)); if(pts.some(p=>!p))continue; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.closePath(); ctx.fill(); ctx.stroke();}
+  const e=AX.filter(a=>Math.abs(vdot(a,o.B))<0.5&&a[0]+a[1]+a[2]>0);
+  for(const [i,j] of [[0,0],[0.55,0.55],[-0.55,0.55],[0.55,-0.55],[-0.55,-0.55]]){
+    const off=vadd(vmul(e[0],i*R),vmul(e[1],j*R)), a=sD(vadd(vadd(ctr,off),vmul(o.B,-R*0.7)),c), b=sD(vadd(vadd(ctr,off),vmul(o.B,R*0.7)),c);
+    if(a&&b)arrow(a.x,a.y,b.x,b.y,C.green,2.2);
+  }
+  ctx.globalAlpha=1;
+}
+function drawRush(){
+  const {W,H}=G, D=RU.D, o=RU.obs; RU.sc=Math.min(W,H)/9;
+  let S2, c;
+  if(!D){
+    S2=sB; ctx.strokeStyle='rgba(90,98,117,0.12)'; ctx.lineWidth=1; const u=RU.sc;
+    const x0=RU.cam[0]-W/2/u, y0=RU.cam[1]-H/u;
+    for(let x=Math.floor(x0);x<x0+W/u+1;x++){const p=sB([x,0,0]);ctx.beginPath();ctx.moveTo(p.x,0);ctx.lineTo(p.x,H);ctx.stroke();}
+    for(let y=Math.floor(y0);y<y0+2*H/u+1;y++){const p=sB([0,y,0]);ctx.beginPath();ctx.moveTo(0,p.y);ctx.lineTo(W,p.y);ctx.stroke();}
+    if(RU.phase!=='reveal'){RU.past.forEach(q=>drawPanelB(q,0.4)); if(RU.phase!=='feedback'&&RU.on)drawPanelB(o,1);}
+  }else{
+    c=camD(); S2=P=>sD(P,c);
+    const us=RU.us, fs=RU.fs, rs=crossV(fs,us), O=vsub(RU.p,vmul(us,2.2)), fr=((vdot(RU.p,fs)%1)+1)%1, rr=((vdot(RU.p,rs)%1)+1)%1;
+    ctx.strokeStyle='rgba(90,98,117,0.16)'; ctx.lineWidth=1;
+    const seg=(a,b)=>{const p=sD(a,c),q=sD(b,c);if(p&&q){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}};
+    for(let j=-2;j<26;j++){const t=j-fr;for(let k=-9;k<9;k++)seg(vadd(O,vadd(vmul(fs,t),vmul(rs,k-rr))),vadd(O,vadd(vmul(fs,t),vmul(rs,k+1-rr))));}
+    for(let k=-9;k<=9;k++){const s=k-rr;for(let j=-2;j<26;j++)seg(vadd(O,vadd(vmul(rs,s),vmul(fs,j-fr))),vadd(O,vadd(vmul(rs,s),vmul(fs,j+1-fr))));}
+    if(RU.phase!=='reveal'){RU.past.forEach(q=>drawBlockD(q,c,0.35)); if(RU.phase!=='feedback'&&RU.on)drawBlockD(o,c,1);}
+  }
+  // path
+  ctx.strokeStyle=qColor(RU.q,1); ctx.lineWidth=3; ctx.lineJoin='round'; ctx.beginPath(); let st=false;
+  for(const P of RU.trail){const p=S2(P); if(!p){st=false;continue;} if(st)ctx.lineTo(p.x,p.y); else {ctx.moveTo(p.x,p.y);st=true;}} ctx.stroke();
+  const ps=S2(RU.p);
+  if(RU.phase==='reveal'){
+    const t=RU.t, k=t<1.0?1:Math.max(0,1-(t-1.0)/0.7), e=1-Math.pow(1-k,3), cx=W/2, cy=H*0.42, x=ps?ps.x+(cx-ps.x)*e:cx, y=ps?ps.y+(cy-ps.y)*e:cy;
+    ctx.save(); ctx.translate(x,y); ctx.scale(1+5*e,1+5*e); particle(0,0,RU.q,1,true); ctx.restore();
+    if(k>0.6){ctx.globalAlpha=Math.min(1,(k-0.6)/0.3);
+      text('This session',cx,cy-110,C.muted,'center',15); text(RU.q>0?'Proton':'Electron',cx,cy-84,C.ink,'center',28);
+      text(RU.q>0?'The palm pushes.':'Same right hand, but the back of your hand pushes.',cx,cy+100,C.ink,'center',14); ctx.globalAlpha=1;}
+    return;
+  }
+  if(ps){
+    const a=S2(vadd(RU.p,vmul(RU.f,0.35))), b=S2(vadd(RU.p,vmul(RU.f,D?1.3:1.1)));
+    if(a&&b&&RU.phase==='approach'){arrow(a.x,a.y,b.x,b.y,C.ink,3);text('v',b.x+8,b.y-6,C.ink,'left',13);}
+    particle(ps.x,ps.y,RU.q,1,true);
+  }
+  // the student's swipe and the real force, at the block's entry
+  const lo=RU.phase==='approach'?null:(RU.phase==='feedback'?RU.past[0]:o);
+  if(lo){const ep=S2(lo.entry);
+    if(ep){
+      if(lo.Fd){const fe=S2(vadd(lo.entry,vmul(lo.Fd,D?1.4:1.3)));if(fe){arrow(ep.x,ep.y,fe.x,fe.y,C.orange,4.5);text('F',fe.x+(fe.x>ep.x?8:-8),fe.y-8,C.orangeInk,fe.x>ep.x?'left':'right',15);}}
+      if(!RU.ok&&RU.answer&&RU.answer!=='late'&&RU.answer!=='none'){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[RU.answer];ctx.setLineDash([6,5]);arrow(ep.x+d[0]*16,ep.y+d[1]*16,ep.x+d[0]*70,ep.y+d[1]*70,C.grey,3);ctx.setLineDash([]);text('your swipe',ep.x+d[0]*78,ep.y+d[1]*78+(d[1]?(d[1]>0?12:-6):-10),C.grey,d[0]<0?'right':d[0]>0?'left':'center',12);}
+    }
+    const vt=RU.ok?'✓ Right':RU.answer==='late'?'Too late':'Not quite';
+    text(vt,10,16,RU.ok?C.blueInk:C.orangeInk,'left',17);
+  }
+  if(RU.phase==='feedback'){const q=RU.past[0];let s;
+    if(!q.Fd)s=(vdot(q.B,q.f)>0?'B points the same way as v':'B points against v')+', so there is no force. It goes straight on.';
+    else s='Fingers along B ('+sWord(q.bs,D)+'), thumb along v ('+sWord(q.vs,D)+'). '+(RU.q>0?'The palm pushes F '+q.ans+'.':'Electron: F comes out of the back of the hand, '+q.ans+'.');
+    wrapText(s+' Tap to go on.',10,40,W*0.58,16,C.ink,12);}
+  if(RU.phase==='approach'){
+    if(RU.st.help>0.4){const lb=!D?(Math.abs(vdot(o.B,o.f))>0.5?(vdot(o.B,o.f)>0?'B along v':'B against v'):(o.B[2]>0?'B out of the page':'B into the page')):'B';
+      const lp=S2(vadd(o.entry,D?vadd(vmul(o.f,2*o.R),vmul(o.u,o.R*1.15)):vadd(vmul([-o.f[1],o.f[0],0],-3),vmul(o.f,-0.3))));
+      if(lp)text(lb,lp.x,lp.y,C.greenInk,'left',13);}
+    if(RU.st.help>0.5&&RU.i<3&&RU.answer==null)text('Take your time',W/2,H*0.95,C.muted,'center',13);
+  }
+  if(handAlpha>0.3){ctx.globalAlpha=Math.min(1,handAlpha);text('fingers = B · thumb = v',W*0.76,H*0.36,C.greenInk,'center',11);text(RU.q<0?'back of hand = F':'palm = F',W*0.76,H*0.36+15,C.orangeInk,'center',11);ctx.globalAlpha=1;}
+}
+ov.addEventListener('pointerup',e=>{
+  if(!RU.on||!RU.down)return;
+  const dx=e.clientX-RU.down.x, dy=e.clientY-RU.down.y; RU.down=null;
+  rushInput(Math.hypot(dx,dy)<18?'none':(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up')));
+});
+
 if(HAS3){try{init3();}catch(err){console.error(err);HAS3=false;}}
 window.addEventListener('resize',()=>{layout();if(S.mode!=='idle')home();});
 layout(); syncGhost(); syncHand(); requestAnimationFrame(frame);
 })();
 </script>
+
 </body>
 </html>
