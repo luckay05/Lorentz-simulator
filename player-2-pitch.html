@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Player 2 Pitch</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5,6 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600;700&family=VT323&display=swap">
 <style>
 /* Layout: one arcade cabinet, centred. Screen (canvas, 4:5) on top, caption bar under it, control deck at the bottom. Single dark look by choice. */
+[hidden]{display:none!important}
 :root{
   --cab:#0a0c16;      /* cabinet body */
   --screen:#05070e;   /* glass */
@@ -22,7 +28,7 @@
 html,body{height:100%}
 body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
 .app{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-block:12px 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
-.strip,.screen,.cap,.pips,.deck,.transcript{width:min(100%,560px,calc((100vh - 225px)*.8));width:min(100%,560px,calc((100svh - 225px)*.8));min-width:min(100%,280px)}
+.strip,.tabs,.screen,.cap,.pips,.deck,.transcript{width:min(100%,560px,calc((100vh - 225px)*.8));width:min(100%,560px,calc((100svh - 225px)*.8));min-width:min(100%,280px)}
 .strip{display:flex;justify-content:space-between;align-items:baseline;gap:12px;white-space:nowrap;font-family:var(--f-mono);font-size:17px;color:var(--dim);letter-spacing:.04em}
 .strip b{color:var(--cyan);font-weight:400}
 .strip .right{display:flex;gap:10px;align-items:center}
@@ -38,7 +44,7 @@ body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
 .screen{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:14px;overflow:hidden;background:var(--screen);box-shadow:0 0 0 2px var(--line),0 0 0 9px #11152a,0 0 40px rgba(95,243,255,.12);cursor:pointer;touch-action:manipulation}
 .screen canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.45) 100%)}
-.paused{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--f-mono);font-size:26px;color:var(--amber);background:rgba(5,7,14,.85);border:2px solid var(--amber);padding:6px 16px;border-radius:8px;pointer-events:none;letter-spacing:.05em}
+.paused{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--f-mono);font-size:26px;color:var(--amber);background:rgba(5,7,14,.85);border:2px solid var(--amber);padding:6px 16px;border-radius:8px;pointer-events:none;letter-spacing:.05em;white-space:nowrap}
 .cap{margin:0;min-height:3.9em;font-size:clamp(15px,2.2vw,18px);line-height:1.35;text-wrap:balance;text-align:center;color:var(--fg);padding:10px 14px;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;background:#070a14;transition:opacity .25s}
 .cap.fade{opacity:.15}
 .pips{display:flex;gap:3px}
@@ -56,10 +62,64 @@ body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
 .transcript summary{cursor:pointer;font-family:var(--f-display);font-weight:600;letter-spacing:.05em;color:var(--fg);padding:6px 0}
 .transcript h3{font-family:var(--f-mono);font-weight:400;font-size:20px;color:var(--cyan);margin:14px 0 4px}
 .transcript p{margin:0 0 6px;color:var(--fg);line-height:1.45;max-width:65ch}
+
+.tabs{display:flex;gap:6px;background:#070a14;border:1px solid var(--line);border-radius:12px;padding:4px;box-sizing:border-box}
+.tabs button{flex:1;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.08em;color:var(--dim);background:transparent;border:0;border-radius:9px;min-height:40px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--screen);background:var(--cyan);box-shadow:0 0 14px rgba(95,243,255,.45)}
+.tabs button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.view{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
+.read{width:min(100%,700px);align-items:stretch;gap:12px;font-size:16.5px;line-height:1.55;color:var(--fg)}
+.read .eyebrow{font-family:var(--f-mono);font-size:19px;color:var(--amber);letter-spacing:.06em;margin:0 0 6px}
+.read h2{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1.15;margin:0 0 10px;color:var(--cyan);text-wrap:balance}
+.read h3{font-family:var(--f-display);font-weight:700;font-size:19px;color:var(--amber);margin:22px 0 6px;letter-spacing:.02em}
+.read p{margin:0 0 12px;max-width:68ch}
+.read strong{color:#fff}
+.read em{color:var(--dim)}
+.read ol,.read ul{margin:0 0 12px;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+.read a{color:var(--cyan)}
+.brief{background:#070b17;border:1px solid var(--cyan);box-shadow:0 0 22px rgba(95,243,255,.12);border-radius:14px;padding:18px 18px 8px}
+.brief>p:first-of-type{font-size:19px;line-height:1.45}
+.brief>p:first-of-type strong{color:var(--green)}
+.toc{background:#070a14;border:1px solid var(--line);border-radius:14px;padding:16px 16px 12px}
+.toc ol{list-style:none;padding:0;margin:0 0 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 14px}
+.toc a{display:flex;gap:10px;align-items:baseline;color:var(--fg);text-decoration:none;padding:6px 4px;border-radius:6px;font-weight:700;font-size:15.5px}
+.toc a:hover{background:#0e1426;color:var(--cyan)}
+.toc .n,.sec .n{font-family:var(--f-mono);font-weight:400;font-size:19px;color:var(--amber);min-width:24px}
+.tocbtns{display:flex;gap:8px}
+.tocbtns button,.watch{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.06em;color:var(--fg);background:#0e1324;border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+.tocbtns button:hover{border-color:var(--cyan)}
+.watch{color:var(--screen);background:var(--amber);border-color:var(--amber)}
+.watch:hover{box-shadow:0 0 12px rgba(255,181,71,.6)}
+.watch.big{font-size:15px;padding:12px 16px;margin-top:8px}
+.watches{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.tocbtns button:focus-visible,.watch:focus-visible,.sec summary:focus-visible,.toc a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.sec{background:#070a14;border:1px solid var(--line);border-radius:14px;scroll-margin-top:12px}
+.sec[open]{border-color:#2c3a62}
+.sec summary{list-style:none;display:flex;gap:12px;align-items:center;padding:14px 16px;cursor:pointer;border-radius:14px}
+.sec summary::-webkit-details-marker{display:none}
+.sec summary .t{flex:1;min-width:0;font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.2;color:var(--fg)}
+.sec[open] summary .t{color:var(--cyan)}
+.sec .chev{width:10px;height:10px;border-right:2.5px solid var(--dim);border-bottom:2.5px solid var(--dim);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+.sec[open] .chev{transform:rotate(225deg)}
+.sec .body{padding:0 16px 8px;min-width:0}
+.tw{overflow-x:auto;margin:0 0 14px;border:1px solid var(--line);border-radius:10px;-webkit-overflow-scrolling:touch}
+.tw table{border-collapse:collapse;width:100%;min-width:520px;font-size:14.5px;line-height:1.45}
+.tw th{font-family:var(--f-display);font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);text-align:left;background:#0b1020;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:bottom}
+.tw td{padding:9px 10px;border-top:1px solid #151c33;vertical-align:top}
+.tw td:first-child{color:#fff;font-weight:700}
+.tw tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+.refs{background:#070a14;border:1px solid var(--line);border-radius:14px;padding:16px}
+.refs ul{font-size:14px;color:var(--dim);gap:4px}
+@media (prefers-reduced-motion:reduce){.sec .chev{transition:none}}
 </style>
 
+<style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*{box-sizing:border-box}</style>
+</head>
+<body>
 <div class="app">
   <div class="strip"><span><b>PLAYER 2</b><span class="wide"> · PITCH</span></span><span class="right"><button class="sndbtn off" id="snd" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg><span id="sndLabel">SOUND?</span></button><button class="sndbtn on" id="vce" aria-pressed="true" hidden><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg><span id="vceLabel">VOICE</span></button><span id="clock">0:00/4:03</span></span></div>
+  <div class="tabs" role="tablist" aria-label="Pitch view"><button role="tab" id="tabW" aria-selected="true" aria-controls="watchV">▶ WATCH</button><button role="tab" id="tabR" aria-selected="false" aria-controls="readV">READ THE PITCH</button></div>
+  <div class="view" id="watchV" role="tabpanel" aria-labelledby="tabW">
   <div class="screen" id="screen" role="img" aria-label="Animated pitch for the learning app">
     <canvas id="cv"></canvas>
     <div class="scan"></div>
@@ -74,6 +134,844 @@ body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
     <button id="replay" aria-label="Replay from the start"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
   </div>
   <details class="transcript"><summary>Read the full script</summary><div id="script"></div></details>
+  </div>
+  <div class="view read" id="readV" role="tabpanel" aria-labelledby="tabR" hidden>
+<section class="brief" aria-labelledby="h-brief"><p class="eyebrow">THE BRIEF · 1-MINUTE READ</p><h2 id="h-brief">The pitch in one minute</h2><p><strong>Our belief: learning science should be fun, easy, effortless, convenient, fast and efficient, and students should understand the logic behind every idea instead of memorising it.</strong></p>
+<p>Memorised facts fade and break the moment a question changes. Logic you understand lasts: you remember it, you can rebuild it, you can apply it to new problems, and you can create with it.</p>
+<p><strong>Built on learning science, not guesswork.</strong> Every screen, word and interaction is backed by established principles from cognitive psychology, memory research, motivation science and interface design. Each decision names the principle behind it, and every lesson must pass our checklist before it ships.</p>
+<p>Most students experience science as boring lectures, confusing words and pages of repeated working. They memorise formulas to pass, and the understanding fades soon after.</p>
+<p>We flip that. Our app feels like a game you play on your phone in a spare ten minutes. Underneath, every tap is designed so the student works out the idea themselves, step by logical step.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Students feel</th>
+<th>Students gain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fun:</strong> each lesson is a game level that opens with a real-world puzzle.</td>
+<td><strong>Logic:</strong> they predict, test and reason from evidence to a conclusion.</td>
+</tr>
+<tr>
+<td><strong>Easy:</strong> short plain sentences, one idea per screen, help a tap away.</td>
+<td><strong>Deep understanding:</strong> they discover the rule before they see the equation.</td>
+</tr>
+<tr>
+<td><strong>Effortless:</strong> no busywork. Effort goes only into the thinking that matters.</td>
+<td><strong>Lasting memory:</strong> they remember because they understand why, and spaced recall keeps it fresh.</td>
+</tr>
+<tr>
+<td><strong>Convenient:</strong> phone-first, no login, a few minutes at a time, anywhere.</td>
+<td><strong>Confidence:</strong> wrong guesses are part of the game, never a failure.</td>
+</tr>
+<tr>
+<td><strong>Fast:</strong> a few minutes per level, skipping what they already know.</td>
+<td><strong>Efficiency:</strong> every minute builds understanding, and nothing needs relearning before the exam.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Proof so far.</strong> The Lorentz Arcade is a game for HSC magnetism with two playable levels, and a physics tutor uses it before his sessions. Physics comes first, then maths and biology.</p>
+<p><strong>Where you come in.</strong> You join as a full partner across physics, code and design. Your first big question: how could maths become fun and effortless while making students more logical? (See the last section.)</p></section>
+<nav class="toc" aria-label="Contents"><p class="eyebrow">THE DETAILED PITCH · TAP A SECTION</p><ol><li><a href="#s-belief" data-open="belief"><span class="n">01</span>Our belief</a></li><li><a href="#s-logic" data-open="logic"><span class="n">02</span>Understand the logic, don&#x27;t memorise</a></li><li><a href="#s-false" data-open="false"><span class="n">03</span>False learning vs real learning</a></li><li><a href="#s-fast" data-open="fast"><span class="n">04</span>Learn fast and efficiently</a></li><li><a href="#s-fun" data-open="fun"><span class="n">05</span>Fun</a></li><li><a href="#s-easy" data-open="easy"><span class="n">06</span>Easy</a></li><li><a href="#s-effortless" data-open="effortless"><span class="n">07</span>Effortless</a></li><li><a href="#s-convenient" data-open="convenient"><span class="n">08</span>Convenient</a></li><li><a href="#s-science" data-open="science"><span class="n">09</span>Built on learning science</a></li><li><a href="#s-psychology" data-open="psychology"><span class="n">10</span>The psychology that makes it good</a></li><li><a href="#s-lesson" data-open="lesson"><span class="n">11</span>How a lesson delivers it</a></li><li><a href="#s-together" data-open="together"><span class="n">12</span>Learning together</a></li><li><a href="#s-status" data-open="status"><span class="n">13</span>Where we are and how we work</a></li><li><a href="#s-challenge" data-open="challenge"><span class="n">14</span>Your challenge: maths that is fun, effortless and logical</a></li></ol><div class="tocbtns"><button type="button" id="openAll">OPEN ALL</button><button type="button" id="closeAll">CLOSE ALL</button></div></nav>
+<details class="sec" id="s-belief"><summary><span class="n">01</span><span class="t">Our belief</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="3">▶ WATCH: OUR BELIEF</button></div><p>The belief has two halves. <strong>How it feels:</strong> fun, easy, effortless, convenient, fast and efficient. <strong>What it builds:</strong> logical thinking and deep understanding. Each half needs the other. Fun without understanding is just a game, and understanding that feels like a chore never sticks.</p>
+<p><strong>"Effortless" means no wasted effort, not no thinking.</strong> We remove everything that tires students without teaching them: confusing wording, repeated working, waiting, and fear of being wrong. What's left is the thinking itself, and we make that feel like solving a puzzle rather than doing homework.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Word</th>
+<th>What it means in our app</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fun</strong></td>
+<td>Each lesson is an arcade level. A real puzzle opens it (an aurora, a PET scan), and the answer is the reward at the end. There are stars, challenges and a sandbox that grows as you clear levels.</td>
+<td>Curiosity gap, game-based learning, goal gradient</td>
+</tr>
+<tr>
+<td><strong>Easy</strong></td>
+<td>One idea per screen. Real physics words come in short, plain sentences. Help is a tap away, in bubbles and a manual.</td>
+<td>Cognitive load theory, progressive disclosure, segmenting</td>
+</tr>
+<tr>
+<td><strong>Effortless</strong></td>
+<td>You learn by touching and watching what happens, not by reading pages. There is no repeated busywork, and mistakes are friendly orange "Not quite", never red.</td>
+<td>Direct manipulation, error-friendly framing, flow</td>
+</tr>
+<tr>
+<td><strong>Convenient</strong></td>
+<td>Built for the phone first, with no login and a few minutes at a time. A tutor can open it in class or a student can play on the bus.</td>
+<td>Microlearning, low friction</td>
+</tr>
+<tr>
+<td><strong>Fast</strong></td>
+<td>Short levels, with a picture instead of a page, instant feedback and skipping what you already know.</td>
+<td>Microlearning, dual coding, mastery learning</td>
+</tr>
+<tr>
+<td><strong>Efficient</strong></td>
+<td>You learn it once with understanding, then review it at the moment you are about to forget, so no time goes on relearning.</td>
+<td>Spacing effect, forgetting curve, schema building</td>
+</tr>
+<tr>
+<td><strong>Logical</strong></td>
+<td>Every level runs predict → test → explain with evidence. Students chain A → B → C and build the rule themselves.</td>
+<td>Predict–observe–explain, claim–evidence–reasoning</td>
+</tr>
+<tr>
+<td><strong>Deep understanding</strong></td>
+<td>Meaning comes first and the equation last. Ideas come back after 1 day, 3 days and 1 week.</td>
+<td>Concreteness fading, conceptual change, spaced retrieval</td>
+</tr>
+</tbody>
+</table></div></div></details>
+<details class="sec" id="s-logic"><summary><span class="n">02</span><span class="t">Understand the logic, don&#x27;t memorise</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="4">▶ WATCH: LOGIC, NOT MEMORY</button><button type="button" class="watch" data-scene="5">▶ WATCH: WHY IT LASTS</button></div><p><strong>This is the heart of the app.</strong> We never ask a student to memorise something they could work out. When you understand the logic behind an idea, you get four things memorising can't give you.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Memorising gives you</th>
+<th>Understanding the logic gives you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Understanding</strong></td>
+<td>A formula you can repeat but can't explain</td>
+<td>The reason it has to be true</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>Isolated facts that fade within weeks</td>
+<td>A connected chain. Forget one link and you can rebuild it from the others.</td>
+</tr>
+<tr>
+<td><strong>Application</strong></td>
+<td>Success only on questions that look like the ones you practised</td>
+<td>The ability to solve questions you have never seen</td>
+</tr>
+<tr>
+<td><strong>Creation</strong></td>
+<td>Nothing new</td>
+<td>The ability to design, invent and ask your own questions</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The evidence.</strong> In Katona's classic experiments (1940), people who learned the principle behind a puzzle remembered it longer and solved new versions better than people who memorised the steps. Ideas processed for meaning are remembered far better than ideas repeated by rote (Craik &amp; Lockhart, 1972). Experts store knowledge as connected principles, not lists of facts (Bransford et al., <em>How People Learn</em>, 2000).</p>
+<p><strong>How the app makes logic the default.</strong></p>
+<ol>
+<li><strong>Few roots, many results.</strong> Each chapter is built on one or two root ideas. Every formula is grown from them in front of the student. For example, r = mv/qB comes from "the magnetic force provides the circular motion", and the lap time comes from "distance ÷ speed". <em>(Schema building, elaboration)</em></li>
+<li><strong>Why before what.</strong> Students see what happens and work out why before they meet the formula. The formula becomes a summary of logic they already own. <em>(Concreteness fading)</em></li>
+<li><strong>A visible logic chain.</strong> Every reason is built as A → B → C from evidence the student tapped, so they see how ideas connect. <em>(Claim–evidence–reasoning, self-explanation)</em></li>
+<li><strong>Apply to the unseen.</strong> After finding a rule, students predict new cases with it before checking. <em>(Transfer)</em></li>
+<li><strong>Create with it.</strong> Challenges ask students to design, not repeat, such as tuning a machine that sorts atoms by mass. <em>(Bloom's highest level: create)</em></li>
+<li><strong>Recall means rebuild.</strong> Spaced recall asks "why?" and "rebuild it", not "recite it". <em>(Generation effect, retrieval practice)</em></li>
+<li><strong>Even words have logic.</strong> Science terms are taught through their roots, so a student who knows that <em>photo</em> means light and <em>synthesis</em> means making can work out what photosynthesis means. This also answers the tutor's point that students can't spell the terms. <em>(Morphological awareness)</em></li>
+</ol>
+<p><strong>Design rules that protect it.</strong></p>
+<ul>
+<li>No multiple choice while teaching. You predict a free value and answer "why" by tapping evidence. <em>(Generation effect, claim–evidence–reasoning)</em></li>
+<li>One reusable routine for finding rules: KNOW → SWAP → CANCEL → CHECK. <em>(Worked-example fading, transfer)</em></li>
+<li>Every animation is physically real: taut ropes stay straight, arrows are drawn to scale and timings match the clock. <em>(Perceptual learning)</em></li>
+<li>Never ask students to memorise what they can work out. Every formula traces back to a root idea. <em>(Elaboration, schema building)</em></li>
+</ul></div></details>
+<details class="sec" id="s-false"><summary><span class="n">03</span><span class="t">False learning vs real learning</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="1">▶ WATCH: THE COPYING TRAP</button><button type="button" class="watch" data-scene="2">▶ WATCH: MORE FALSE LEARNING</button></div><p><strong>Many popular study habits create an illusion of learning.</strong> They feel productive because they are smooth and familiar, but little is actually learned. Psychologists call this the illusion of competence: fluency feels like mastery (Bjork, 1994; Kornell &amp; Bjork, 2008). In one review of ten common study techniques, rereading, highlighting and summarising were rated low utility, while self-testing and spaced practice were rated high (Dunlosky et al., 2013).</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>False learning</th>
+<th>Why it feels like learning</th>
+<th>What really happens</th>
+<th>What our app does instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Copying notes or a formula a thousand times</td>
+<td>Your hand gets faster and the page fills up</td>
+<td>Copying needs no thinking, so the brain stores almost nothing about meaning</td>
+<td>You build the formula yourself from a root idea, once, and understand it</td>
+</tr>
+<tr>
+<td>Rereading and highlighting</td>
+<td>The text looks more familiar each time</td>
+<td>Familiarity is mistaken for memory. In the exam, nothing comes back without the page</td>
+<td>You predict, test and explain, so the idea comes from your own head</td>
+</tr>
+<tr>
+<td>Watching a teacher or video solve it</td>
+<td>Every step makes sense as you watch</td>
+<td>Following isn't the same as doing. Students who sit through lectures feel they learned more but actually learn less (Deslauriers et al., 2019)</td>
+<td>Nothing moves until you guess or act</td>
+</tr>
+<tr>
+<td>20 near-identical questions in a row</td>
+<td>You get quicker by question 20</td>
+<td>You learn to repeat a pattern, not when to use it, so mixed exam questions break you (Rohrer &amp; Taylor, 2007)</td>
+<td>A few varied questions, each changing one thing, mixed with older topics</td>
+</tr>
+<tr>
+<td>Memorising formulas and answers</td>
+<td>You can recite them perfectly</td>
+<td>The facts are isolated, so they fade and can't handle a new question</td>
+<td>Few root ideas, everything grown from them, so you can rebuild and apply</td>
+</tr>
+<tr>
+<td>Cramming the night before</td>
+<td>You know it the next morning</td>
+<td>It is gone within weeks</td>
+<td>Spaced recall after 1 day, 3 days and 1 week</td>
+</tr>
+<tr>
+<td>Getting the answer right by guessing from options</td>
+<td>A tick feels like success</td>
+<td>You can pick without understanding</td>
+<td>Free predictions and evidence-based "why", with no options to guess from</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Where else today's teaching lets students down.</strong> Our tutor told us where his students really get stuck, and research adds the rest.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>What students face today</th>
+<th>Our answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Technical words stop students from understanding the question (tutor feedback).</td>
+<td>Real terms in short sentences, with a plain meaning the first time and a tap-to-open reminder after that.</td>
+</tr>
+<tr>
+<td>Students write the right equation but get the steps wrong (tutor feedback).</td>
+<td>You build the reasoning step by step, and the app handles what you already know.</td>
+</tr>
+<tr>
+<td>Students can't tell whether an answer makes physical sense (tutor feedback).</td>
+<td>Before you compute, you predict bigger, same or smaller. Then you check.</td>
+</tr>
+<tr>
+<td>Equations come first, so students plug and chug.</td>
+<td>You discover the rule in the simulation, and the equation arrives last as a shortcut you already understand.</td>
+</tr>
+<tr>
+<td>Wrong intuitions survive teaching. Lectures give about half the gain of interactive teaching (Hake, 1998).</td>
+<td>You commit to a prediction, see the surprise, and work out why.</td>
+</tr>
+<tr>
+<td>Being wrong feels like failing, so students stop guessing.</td>
+<td>Wrong guesses get an orange "Not quite, let's see why" and become the most interesting part of the level.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Real learning can feel harder in the moment, so we make it fun.</strong> Predicting, recalling and explaining are "desirable difficulties": they feel slower but build far stronger memory (Bjork). Our job is to make that thinking feel like a game, so students get the real learning without the grind.</p></div></details>
+<details class="sec" id="s-fast"><summary><span class="n">04</span><span class="t">Learn fast and efficiently</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="11">▶ WATCH: FAST &amp; EFFICIENT</button></div><p><strong>Understanding is the fastest route, not a slow one.</strong> Memorising feels quick, but you pay for it again and again: you relearn before every test and get stuck on every new kind of question. When you understand the logic once, one root idea gives you many results, and it stays.</p>
+<p><strong>Fast means less wasted time, not less thinking.</strong> We cut every minute that doesn't build understanding and protect the minutes that do.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Where time is wasted today</th>
+<th>How our app saves it</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Relearning forgotten content before every exam</td>
+<td>Learn it once with understanding. Reviews arrive just before you would forget, so a 1-minute recall replaces an evening of relearning.</td>
+<td>Spacing effect, forgetting curve (Ebbinghaus)</td>
+</tr>
+<tr>
+<td>Memorising 20 separate formulas</td>
+<td>Learn 2 root ideas and grow the rest from them</td>
+<td>Chunking, schema building</td>
+</tr>
+<tr>
+<td>Practising what you already know</td>
+<td>A quick check lets you skip it. Mastered steps fold away, and strong students jump ahead.</td>
+<td>Mastery learning, expertise reversal</td>
+</tr>
+<tr>
+<td>Reading a page to understand one idea</td>
+<td>A 2-second animation with one line of words</td>
+<td>Dual coding, multimedia principle (Mayer)</td>
+</tr>
+<tr>
+<td>Waiting days for marked homework</td>
+<td>Instant feedback with the reason</td>
+<td>Immediate explanatory feedback</td>
+</tr>
+<tr>
+<td>Being stuck with no one to ask</td>
+<td>One targeted nudge at the exact step where your thinking broke</td>
+<td>Scaffolding, minimal guidance at the point of need</td>
+</tr>
+<tr>
+<td>Not knowing what to do next</td>
+<td>One goal per screen, a clear path and progress pips</td>
+<td>Goal gradient, cognitive load</td>
+</tr>
+<tr>
+<td>Hour-long sessions with fading attention</td>
+<td>5–10 minute levels you can fit into a bus ride</td>
+<td>Microlearning, distributed practice</td>
+</tr>
+<tr>
+<td>20 identical practice questions</td>
+<td>A few varied questions that each teach something new</td>
+<td>Variation theory, interleaving</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>We measure speed honestly.</strong> For every lesson we track time to mastery and the learning gain per minute, and compare them with a normal lecture plus homework. Our goal is to beat that on both: higher scores in less time.</p></div></details>
+<details class="sec" id="s-fun"><summary><span class="n">05</span><span class="t">Fun</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="3">▶ WATCH: OUR BELIEF</button></div><p><strong>Fun is the engine, not the decoration.</strong> Attention is the gateway to memory, and students come back to what they enjoy. Our fun comes from curiosity, choice and the feeling of getting smarter, not from cartoons or points for nothing.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>What kills fun today</th>
+<th>How our app makes it fun</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lessons start with definitions</td>
+<td>Every level opens with a real mystery (an aurora, a cyclotron) that is answered only at the end</td>
+<td>Curiosity gap (Loewenstein, 1994)</td>
+</tr>
+<tr>
+<td>No choice, just follow the steps</td>
+<td>Free play and a sandbox: you choose what to try</td>
+<td>Autonomy (self-determination theory)</td>
+</tr>
+<tr>
+<td>Feedback only comes at the test</td>
+<td>Every guess gets an instant, often surprising reveal</td>
+<td>Prediction error, surprise</td>
+</tr>
+<tr>
+<td>Too hard or too easy</td>
+<td>The next stage unlocks on mastery, and challenges stretch you just enough</td>
+<td>Flow (Csikszentmihalyi)</td>
+</tr>
+<tr>
+<td>Progress is invisible</td>
+<td>Stars, progress pips and new sandbox tools as you clear levels</td>
+<td>Goal gradient, competence</td>
+</tr>
+<tr>
+<td>Learning alone</td>
+<td>"Who's right?" debates and class votes</td>
+<td>Relatedness, peer instruction</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Design rules for fun.</strong></p>
+<ul>
+<li>Arcade look, with section title cards (PRESS START) and progress pips. <em>(Goal gradient, event segmentation)</em></li>
+<li>Plan-first challenges with stars. A ★ needs a first plan that works, so you can't win by wiggling. <em>(Competence, metacognition)</em></li>
+<li>A sandbox on the level map that gains new tools with each level cleared. <em>(Autonomy, self-determination theory)</em></li>
+</ul>
+<p><strong>We measure it</strong> by whether students finish levels and come back without being told to.</p></div></details>
+<details class="sec" id="s-easy"><summary><span class="n">06</span><span class="t">Easy</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><p><strong>Easy means clear, not dumbed down.</strong> Students meet real physics terms and real equations, but one idea at a time, in plain sentences, with pictures doing most of the explaining.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>What makes it hard today</th>
+<th>How our app makes it easy</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Technical words block the question</td>
+<td>Real terms in short sentences. The plain meaning comes the first time, then a tap-to-open bubble.</td>
+<td>Signalling, vocabulary scaffolding</td>
+</tr>
+<tr>
+<td>Too much on one page</td>
+<td>One idea per screen</td>
+<td>Cognitive load theory, segmenting (Mayer)</td>
+</tr>
+<tr>
+<td>Abstract symbols with no meaning</td>
+<td>Picture → diagram → symbol</td>
+<td>Concreteness fading</td>
+</tr>
+<tr>
+<td>Missing basics from earlier years</td>
+<td>Reminder bubbles with a small picture, right where they're needed</td>
+<td>Just-in-time prerequisites</td>
+</tr>
+<tr>
+<td>Not knowing what to tap or do</td>
+<td>One clear action per screen</td>
+<td>Hick's law, clear affordances</td>
+</tr>
+<tr>
+<td>Labels far from the diagram</td>
+<td>Words sit on the picture they describe</td>
+<td>Spatial contiguity (Mayer)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Design rules for easy.</strong></p>
+<ul>
+<li>Text comes in three layers: caption → notice board or bubbles → manual. You only read what you need right now. <em>(Cognitive load, progressive disclosure)</em></li>
+<li>Real physics terms in short, easy sentences. <em>(Signalling, vocabulary building)</em></li>
+<li>Direction before size: you guess SMALLER / SAME / BIGGER before ×½ ×1 ×2. <em>(Scaffolding)</em></li>
+</ul>
+<p><strong>We measure it</strong> by whether a student can finish a level without asking anyone what to do.</p></div></details>
+<details class="sec" id="s-effortless"><summary><span class="n">07</span><span class="t">Effortless</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><p><strong>Effortless means all effort goes into thinking.</strong> We remove the three things that drain students without teaching them: busywork, friction and fear. The good kind of effort, working out why, stays and feels like solving a puzzle.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>What drains students today</th>
+<th>How our app removes it</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repetitive working (substituting, copying out)</td>
+<td>Steps you have mastered are handled for you</td>
+<td>Expertise reversal, extraneous load</td>
+</tr>
+<tr>
+<td>Fiddly controls</td>
+<td>One-thumb swipe tiles with a haptic tick and a response under 100 ms</td>
+<td>Direct manipulation, Doherty threshold, Fitts's law</td>
+</tr>
+<tr>
+<td>Fear of being wrong</td>
+<td>Orange "Not quite, let's see why" and anonymous votes</td>
+<td>Psychological safety, error-friendly framing</td>
+</tr>
+<tr>
+<td>Logins and setup</td>
+<td>Open a link and play</td>
+<td>Friction reduction</td>
+</tr>
+<tr>
+<td>Deciding what to study next</td>
+<td>The app picks the next step and schedules reviews</td>
+<td>Decision fatigue</td>
+</tr>
+<tr>
+<td>Needing willpower to start</td>
+<td>A level takes 5 minutes, so starting is easy</td>
+<td>Fogg behaviour model (make it easy to begin)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Design rules for effortless.</strong></p>
+<ul>
+<li>One control everywhere: equation tiles you swipe up for more and down for less. The control IS the equation. <em>(Direct manipulation, multiple representations)</em></li>
+<li>Response under 100 ms with a haptic tick. <em>(Doherty threshold)</em></li>
+<li>Wrong answers are orange "Not quite" with the reason, never red. <em>(Error-friendly framing, psychological safety)</em></li>
+</ul></div></details>
+<details class="sec" id="s-convenient"><summary><span class="n">08</span><span class="t">Convenient</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><p><strong>Learning fits into the student's life, not the other way round.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>What's inconvenient today</th>
+<th>How our app fixes it</th>
+<th>Principles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Needs a desk and a textbook</td>
+<td>Phone-first and one-thumb, so it works on a bus or in a break</td>
+<td>Mobile learning</td>
+</tr>
+<tr>
+<td>Needs long blocks of time</td>
+<td>5–10 minute levels</td>
+<td>Microlearning, distributed practice</td>
+</tr>
+<tr>
+<td>Accounts and installs</td>
+<td>A web link with no login</td>
+<td>Friction reduction</td>
+</tr>
+<tr>
+<td>Separate tools for class, homework and revision</td>
+<td>One app is the pre-read, the class vote, the sandbox and the revision</td>
+<td>Consistency, one mental model</td>
+</tr>
+<tr>
+<td>Forgetting to review</td>
+<td>The app brings reviews back at the right time</td>
+<td>Spaced-repetition scheduling, cues for habits</td>
+</tr>
+<tr>
+<td>A tutor needs setup to use it in class</td>
+<td>A room code and QR code, and students join in seconds</td>
+<td>Low barrier to use</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Design rules for convenient.</strong></p>
+<ul>
+<li>Built for one thumb on a phone. Levels take minutes, and there is no login.</li>
+<li>Hosted on GitHub Pages, so a tutor can share a link with no setup.</li>
+</ul></div></details>
+<details class="sec" id="s-science"><summary><span class="n">09</span><span class="t">Built on learning science</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="10">▶ WATCH: BUILT ON SCIENCE</button></div><p>The app stands on decades of research, not on opinions or trends. Each principle below is already working in the Lorentz Arcade.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Principles we use</th>
+<th>Where you see it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How memory works</td>
+<td>Retrieval practice, spacing, interleaving, generation effect, elaboration, levels of processing</td>
+<td>Spaced recall, "rebuild it" questions, free predictions, root ideas</td>
+</tr>
+<tr>
+<td>How understanding forms</td>
+<td>Conceptual change, predict–observe–explain, concreteness fading, schema building, analogical mapping</td>
+<td>Surprise reveals, equation last, chain → field morph</td>
+</tr>
+<tr>
+<td>How the mind handles information</td>
+<td>Cognitive load theory, segmenting, signalling, dual coding, multimedia principles (Mayer)</td>
+<td>One idea per screen, three text layers, colour-linked symbols</td>
+</tr>
+<tr>
+<td>How we reason</td>
+<td>Claim–evidence–reasoning, self-explanation, contrasting cases, metacognition</td>
+<td>Tap the evidence, "Who's right?", plan-first challenges</td>
+</tr>
+<tr>
+<td>How motivation works</td>
+<td>Self-determination theory, curiosity gap, goal gradient, error-friendly framing</td>
+<td>Puzzle hooks, stars, sandbox, orange "Not quite"</td>
+</tr>
+<tr>
+<td>How people learn together</td>
+<td>Peer instruction (Mazur), socio-cognitive conflict, psychological safety</td>
+<td>Tutor-session votes, anonymous counts</td>
+</tr>
+<tr>
+<td>How people use interfaces</td>
+<td>Direct manipulation, Doherty threshold, progressive disclosure</td>
+<td>Swipe tiles, under 100 ms response, help on tap</td>
+</tr>
+<tr>
+<td>How people learn at different paces</td>
+<td>Mastery learning, expertise reversal</td>
+<td>Unlock on mastery, skip what you already know</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How we keep it bulletproof.</strong></p>
+<ol>
+<li><strong>Every decision names its principle.</strong> If we can't name one, we don't build it.</li>
+<li><strong>Every lesson passes the checklist</strong> in our teaching-principles doc.</li>
+<li><strong>Every animation is checked for real physics.</strong></li>
+<li><strong>We test with real students.</strong> We compare scores before and after, using the same normalised-gain measure as Hake's study, and keep only what works.</li>
+</ol></div></details>
+<details class="sec" id="s-psychology"><summary><span class="n">10</span><span class="t">The psychology that makes it good</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="9">▶ WATCH: THE PSYCHOLOGY</button></div><p><strong>Learning science tells us what to teach and in what order. Psychology makes students want to open the app, feel safe in it and keep coming back.</strong> We design for the whole student: attention, emotion, motivation, self-belief, habits and memory.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Part of the mind</th>
+<th>What psychology tells us</th>
+<th>How we use it in the app</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Attention</strong></td>
+<td>Motion and contrast grab the eye before anything else (preattentive processing). An open question holds attention until it's answered (curiosity gap).</td>
+<td>Motion and colour are used only for what matters right now. Every level opens with a question and pays it off at the end.</td>
+</tr>
+<tr>
+<td><strong>Emotion</strong></td>
+<td>Anxiety eats working memory, which is why maths anxiety lowers scores (Ashcraft, 2002). Positive emotion widens thinking (Fredrickson, 2001).</td>
+<td>No red crosses, no countdown timers while learning, anonymous votes and a warm "Not quite, let's see why".</td>
+</tr>
+<tr>
+<td><strong>Motivation</strong></td>
+<td>People are driven by autonomy, competence and relatedness (self-determination theory). Rewards for just doing a task can kill interest in it (the overjustification effect).</td>
+<td>Stars reward understanding (a plan that works first time), never time spent or taps. Free play gives choice, and debates give connection.</td>
+</tr>
+<tr>
+<td><strong>Self-belief</strong></td>
+<td>The strongest source of self-belief is experiencing success yourself (Bandura's self-efficacy). Treating mistakes as "not yet" keeps students trying (growth mindset).</td>
+<td>Early levels are designed for quick wins, and difficulty grows step by step. Mistakes are framed as the interesting part.</td>
+</tr>
+<tr>
+<td><strong>Memory and surprise</strong></td>
+<td>Errors made with confidence and then corrected are remembered best (the hypercorrection effect, Butterfield &amp; Metcalfe, 2001). Things that stand out are remembered (von Restorff effect).</td>
+<td>Students commit to a confident prediction, then see the surprise. That makes the correct idea stick.</td>
+</tr>
+<tr>
+<td><strong>Habit</strong></td>
+<td>A behaviour happens when motivation, ability and a prompt meet (Fogg behaviour model).</td>
+<td>A 5-minute level is easy to start, and a recall reminder is the prompt.</td>
+</tr>
+<tr>
+<td><strong>Endings</strong></td>
+<td>People judge an experience by its peak and its end (the peak–end rule, Kahneman). Unfinished questions stay on the mind (the Zeigarnik effect).</td>
+<td>Each level ends on a high: the puzzle answered and a Discovery card. Then one open question carries into the tutorial.</td>
+</tr>
+<tr>
+<td><strong>Social learning</strong></td>
+<td>Arguing with a peer exposes gaps that a teacher's explanation misses (peer instruction). Criticising an idea is easier when it isn't your own.</td>
+<td>"Who's right?" uses characters, so students judge ideas rather than people. The class votes, then convinces a neighbour.</td>
+</tr>
+<tr>
+<td><strong>Perception</strong></td>
+<td>The eye groups things by colour and closeness (Gestalt principles). We learn from what we see, not from what we're told (perceptual learning).</td>
+<td>Each symbol shares its colour with its arrow. Every animation is physically real.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>What we will never do.</strong> We use psychology to help students learn, never to trap their attention. That means no guilt-trip streaks, no loot boxes, no endless feeds, no fake urgency and no other dark patterns. Success is measured in understanding, not screen time.</p></div></details>
+<details class="sec" id="s-lesson"><summary><span class="n">11</span><span class="t">How a lesson delivers it</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="6">▶ WATCH: THE LESSON LOOP</button><button type="button" class="watch" data-scene="7">▶ WATCH: A LEVEL IN ACTION</button></div><p>Every lesson follows the same loop, and each step serves one or both halves of the belief.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What the student does</th>
+<th>Feels</th>
+<th>Builds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Puzzle</td>
+<td>Sees a real-world mystery with an open question</td>
+<td>Fun</td>
+<td>Curiosity</td>
+</tr>
+<tr>
+<td>2. Predict</td>
+<td>Sets a guess dial</td>
+<td>Fun, easy</td>
+<td>Logic: commit to an idea</td>
+</tr>
+<tr>
+<td>3. Play</td>
+<td>Swipes the equation's letters and watches the sim respond</td>
+<td>Fun, effortless</td>
+<td>Intuition from what you see</td>
+</tr>
+<tr>
+<td>4. Explain</td>
+<td>Taps the evidence and builds the reason A → B</td>
+<td>Easy</td>
+<td>Logic, deep understanding</td>
+</tr>
+<tr>
+<td>5. Equation</td>
+<td>Grows the formula from the root idea, so it arrives last as a summary of logic they already own</td>
+<td>Effortless</td>
+<td>Deep understanding</td>
+</tr>
+<tr>
+<td>6. Challenge</td>
+<td>Uses the logic to design something new, such as tuning a machine that sorts atoms, by planning first and then testing</td>
+<td>Fun</td>
+<td>Apply and create</td>
+</tr>
+<tr>
+<td>7. Recall</td>
+<td>Rebuilds the logic after 1 day, 3 days and 1 week, instead of reciting it</td>
+<td>Convenient</td>
+<td>Lasting memory</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example: level C3, "How long is one lap?"</strong> The level opens with a cyclotron, the machine that makes PET scan medicine. A ball on a chain shows the familiar rule that going faster means a shorter lap. The scene morphs into a magnetic field with the same ball still moving.</p>
+<p>The student predicts that doubling the speed will halve the lap time. Then comes the surprise: the lap time stays the same. The student taps the evidence (radius ×2, speed ×2), builds the reason (distance ×2 ÷ speed ×2 = ×1) and finds the rule for themselves. The equation arrives only after they already know why. <em>(Discrepant event, object constancy, concreteness fading)</em></p></div></details>
+<details class="sec" id="s-together"><summary><span class="n">12</span><span class="t">Learning together</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="8">▶ WATCH: WHO&#x27;S RIGHT?</button><button type="button" class="watch" data-scene="12">▶ WATCH: LEARNING TOGETHER</button></div><p>Arguing an idea with friends is fun, and it is one of the strongest ways to build logic (Mazur; Smith et al., 2009). Two features bring that in.</p>
+<p><strong>"Who's right?" cards, in every lesson.</strong> Two characters each explain what just happened, and one holds a common mistake. You tap who's right. At the end of the level you discover that one of them was secretly a real scientist, such as Ernest Lawrence. <em>(Contrasting cases, self-explanation, curiosity)</em></p>
+<p><strong>Tutor-session mode, the big feature.</strong> The tutor shows a 4-letter code and a QR code, and students join on their phones with no login. The class votes on a prediction and sees the split. Then students get 2 minutes to convince a neighbour, vote again, and run the sim together to see who was right. Votes stay anonymous, so no one fears being wrong. <em>(Peer instruction, psychological safety)</em> This needs a small backend, such as the Firebase or Supabase free tier.</p></div></details>
+<details class="sec" id="s-status"><summary><span class="n">13</span><span class="t">Where we are and how we work</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="13">▶ WATCH: ALREADY RUNNING</button></div><p>The Lorentz Arcade covers charges in magnetic fields for HSC Module 6. It is the first chapter of the app.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C2: How big is the circle?</td>
+<td>Built (equation-tile controls)</td>
+</tr>
+<tr>
+<td>C3: How long is one lap?</td>
+<td>Built; moving to tile controls</td>
+</tr>
+<tr>
+<td>C1: Why a circle?</td>
+<td>In design</td>
+</tr>
+<tr>
+<td>Sandbox on the level map</td>
+<td>Built</td>
+</tr>
+<tr>
+<td>Spaced recall section</td>
+<td>To design together</td>
+</tr>
+<tr>
+<td>Tutor-session mode</td>
+<td>Planned; needs a backend</td>
+</tr>
+<tr>
+<td>More physics chapters, then maths and biology</td>
+<td>Later</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How we work.</strong> Each new level is drawn frame by frame on a design canvas first, with a note on each frame saying what it does and which principle it serves. We comment, discuss and agree, and only then build. Every app screen shows a code (such as C3-06) so feedback points to an exact screen. Every lesson must pass the checklist in our teaching-principles doc.</p></div></details>
+<details class="sec" id="s-challenge"><summary><span class="n">14</span><span class="t">Your challenge: maths that is fun, effortless and logical</span><span class="chev" aria-hidden="true"></span></summary><div class="body"><div class="watches"><button type="button" class="watch" data-scene="14">▶ WATCH: YOUR CHALLENGE</button></div><p>Forget how maths has always been taught, with its rules to memorise and drills to repeat. Today, a student grinds through 20 near-identical questions, substituting and simplifying by hand, and most of that effort teaches nothing new. With AI we can strip out the grind and keep only the thinking.</p>
+<p><strong>Luc's starting idea: skip what you already know.</strong> A real question mixes several skills. If you have already mastered substitution, you shouldn't have to do it again. Your effort should go only to the part that is new to you.</p>
+<h3>Starter ideas to react to</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Idea</th>
+<th>How it works</th>
+<th>Feels</th>
+<th>Builds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skip what you know</strong></td>
+<td>Each question shows as a chain of steps. Steps you have already mastered fold away on their own (one tap to peek), so you only work the new step while still seeing the whole chain.</td>
+<td>Effortless</td>
+<td>Logic: you see how the steps connect</td>
+</tr>
+<tr>
+<td><strong>Maths you can touch</strong></td>
+<td>Equations are objects you drag. Move a term across the = and its sign flips; drag a slider and the graph bends. You discover the rules by playing instead of memorising them.</td>
+<td>Fun, easy</td>
+<td>Deep understanding of why rules work</td>
+</tr>
+<tr>
+<td><strong>Game first, method later</strong></td>
+<td>Each topic opens with a game the method solves, such as aiming a basketball shot (a parabola). You invent the method as your own shortcut to win.</td>
+<td>Fun</td>
+<td>Logic: maths as a tool you build</td>
+</tr>
+<tr>
+<td><strong>Snap your homework</strong></td>
+<td>Take a photo of a question you're stuck on. The app finds the step where your thinking broke and gives just that one nudge, never the full answer.</td>
+<td>Convenient, easy</td>
+<td>Logic: you finish the reasoning yourself</td>
+</tr>
+<tr>
+<td><strong>Say it, don't write it</strong></td>
+<td>Explain your reasoning out loud. The AI follows your chain and asks one question exactly where it breaks.</td>
+<td>Effortless, convenient</td>
+<td>Logic, self-explanation</td>
+</tr>
+<tr>
+<td><strong>Does it make sense?</strong></td>
+<td>A quick mini-game before calculating: will the answer be bigger, smaller, positive or negative? Afterwards you check your guess.</td>
+<td>Fun</td>
+<td>Number sense, judging answers</td>
+</tr>
+<tr>
+<td><strong>Your world, your questions</strong></td>
+<td>Questions are built from what you love, such as your sport, your game stats or your money.</td>
+<td>Fun</td>
+<td>Transfer to real life</td>
+</tr>
+<tr>
+<td><strong>Rebuild, don't memorise</strong></td>
+<td>There is no formula sheet to learn. Each topic rests on a few root ideas, and every formula is grown from them. For example, the quadratic formula comes from completing the square. When you forget a formula, the app helps you rebuild it instead of showing it.</td>
+<td>Easy</td>
+<td>Understanding, lasting memory, creation</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>(Principles: expertise reversal and cognitive load for skipping; direct manipulation and discovery learning for touch; productive failure and curiosity for game first; minimal hints and self-explanation for snap and say; predict–observe–explain for make-sense; personalisation and relevance for your world.)</em></p>
+<h3>What we won't give up</h3>
+<ul>
+<li><strong>The thinking stays with the student.</strong> The AI only removes steps you have already proven you can do.</li>
+<li><strong>Skipped skills are checked now and then</strong>, so they don't quietly fade before exams.</li>
+<li><strong>The maths is always correct.</strong> A maths engine does the computing, and the AI only talks.</li>
+</ul>
+<h3>Where to aim: the hardest topics shared by HSC and HKDSE</h3>
+<p>Start with topics that both the NSW HSC and the Hong Kong HKDSE teach, and that students find hardest. One lesson then serves two markets, and these topics are where memorising fails most. They overlap mainly between HSC Extension 1 and 2 and HKDSE Module 2 (<a href="https://www.edb.gov.hk/attachment/en/curriculum-development/kla/ma/curr/EN_M2_e.pdf">EDB Module 2 guide</a>).</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>HSC</th>
+<th>HKDSE</th>
+<th>Why students struggle</th>
+<th>The logic to build it from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mathematical induction</td>
+<td>Ext 1 and Ext 2</td>
+<td>M2</td>
+<td>It's memorised as a ritual ("assume n = k") without seeing why it proves anything</td>
+<td>Falling dominoes: the first one falls, and each one knocks over the next</td>
+</tr>
+<tr>
+<td>Vectors</td>
+<td>Ext 1 (2D), Ext 2 (3D)</td>
+<td>M2 (incl. dot and cross product)</td>
+<td>Abstract arrows and rules with no picture</td>
+<td>Arrows you can drag. The dot product measures how much two arrows agree, which links straight to our physics work</td>
+</tr>
+<tr>
+<td>Compound angle trigonometry</td>
+<td>Ext 1</td>
+<td>M2</td>
+<td>A wall of identities to memorise</td>
+<td>Rotation on the unit circle. Every identity can be rebuilt from one picture</td>
+</tr>
+<tr>
+<td>Calculus applications (rates, optimisation, areas and volumes)</td>
+<td>Advanced and Ext 1</td>
+<td>M1 and M2</td>
+<td>Students can differentiate but don't know what the question wants</td>
+<td>Rate of change and adding up thin slices, both seen live</td>
+</tr>
+<tr>
+<td>Binomial theorem</td>
+<td>Ext 1</td>
+<td>M1 and M2</td>
+<td>Coefficients learned as a formula</td>
+<td>Counting paths through Pascal's triangle</td>
+</tr>
+<tr>
+<td>Exponentials and logarithms</td>
+<td>Advanced</td>
+<td>Compulsory and M1</td>
+<td>Log laws memorised as rules</td>
+<td>A log is a question: how many times do I multiply? The laws follow from that</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>These course mappings should be checked line by line against the current NESA and EDB syllabus documents before we commit to a topic.</em></p>
+<h3>Over to you</h3>
+<ul>
+<li>Which ideas feel most fun and most effortless to you? What would you add or throw away?</li>
+<li>Pick one HSC maths topic for a first prototype.</li>
+</ul></div></details>
+<section class="refs"><p class="eyebrow">RESEARCH WE BUILD ON</p><ul><li>Ashcraft, M. H. (2002). Math anxiety: personal, educational and cognitive consequences.</li><li>Bandura, A. (1977). Self-efficacy.</li><li>Bjork, R. A. (1994). Desirable difficulties; Kornell, N. &amp; Bjork, R. A. (2008).</li><li>Bransford, J. et al. (2000). How People Learn.</li><li>Butterfield, B. &amp; Metcalfe, J. (2001). The hypercorrection effect.</li><li>Craik, F. &amp; Lockhart, R. (1972). Levels of processing.</li><li>Deslauriers, L. et al. (2019). Measuring actual learning versus feeling of learning.</li><li>Dunlosky, J. et al. (2013). Improving students&#x27; learning with effective learning techniques.</li><li>Ebbinghaus, H. (1885). Memory: the forgetting curve.</li><li>Fredrickson, B. (2001). The broaden-and-build theory of positive emotions.</li><li>Hake, R. (1998). Interactive-engagement versus traditional methods.</li><li>Katona, G. (1940). Organizing and Memorizing.</li><li>Loewenstein, G. (1994). The psychology of curiosity.</li><li>Mayer, R. E. Multimedia Learning (principles of multimedia design).</li><li>Mazur, E. (1997). Peer Instruction; Smith, M. K. et al. (2009). Why peer discussion improves student performance.</li><li>Rohrer, D. &amp; Taylor, K. (2007). The shuffling of mathematics problems improves learning.</li><li>Education Bureau, Hong Kong. Mathematics Extended Part Module 2 curriculum guide.</li></ul><button type="button" class="watch big" data-scene="0">▶ WATCH THE PITCH FROM THE START</button></section>
+  </div>
 </div>
 
 <script>
@@ -484,7 +1382,7 @@ document.getElementById('replay').onclick=()=>{go(0);setPlaying(true)};
 document.getElementById('screen').addEventListener('click',e=>{const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
  if(si===SC.length-1&&st>6&&x>140&&x<460&&y>546&&y<640){if(joinedAt==null){joinedAt=st;sfx('fanfare')}if(!playing)setPlaying(true);return}
  setPlaying(!playing)});
-addEventListener('keydown',e=>{if(e.target.closest('button,summary'))return;if(e.code==='Space'){e.preventDefault();setPlaying(!playing)}if(e.key==='ArrowRight'&&si<SC.length-1)go(si+1);if(e.key==='ArrowLeft')go(si-1)});
+addEventListener('keydown',e=>{if(e.target.closest('button,summary,a')||!readV.hidden)return;if(e.code==='Space'){e.preventDefault();setPlaying(!playing)}if(e.key==='ArrowRight'&&si<SC.length-1)go(si+1);if(e.key==='ArrowLeft')go(si-1)});
 
 function frame(now){
  const dt=Math.min(.1,(now-last)/1000);last=now;
@@ -510,7 +1408,26 @@ function frame(now){
  clockEl.textContent=fmt(el)+'/'+fmt(total);
  requestAnimationFrame(frame);
 }
+
+/* ---------- watch / read tabs ---------- */
+const tabW=document.getElementById('tabW'),tabR=document.getElementById('tabR'),watchV=document.getElementById('watchV'),readV=document.getElementById('readV');
+let resumeOnWatch=false;
+function showTab(which){const r=which==='read';if(r===!readV.hidden)return;
+ if(r){resumeOnWatch=playing;if(playing)setPlaying(false)}
+ readV.hidden=!r;watchV.hidden=r;tabW.setAttribute('aria-selected',!r);tabR.setAttribute('aria-selected',r);
+ if(!r&&resumeOnWatch){setPlaying(true);resumeOnWatch=false}
+ if(r)window.scrollTo(0,0);if(!r)resize()}
+tabW.onclick=()=>showTab('watch');tabR.onclick=()=>showTab('read');
+[tabW,tabR].forEach(b=>b.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const o=b===tabW?tabR:tabW;o.focus();o.click()}}));
+readV.querySelectorAll('.watch').forEach(b=>b.onclick=()=>{resumeOnWatch=false;showTab('watch');go(+b.dataset.scene);setPlaying(true);window.scrollTo(0,0)});
+readV.querySelectorAll('.toc a').forEach(a=>a.onclick=e=>{e.preventDefault();const d=document.getElementById('s-'+a.dataset.open);d.open=true;d.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})});
+document.getElementById('openAll').onclick=()=>readV.querySelectorAll('details.sec').forEach(d=>d.open=true);
+document.getElementById('closeAll').onclick=()=>readV.querySelectorAll('details.sec').forEach(d=>d.open=false);
+if(location.hash==='#read')showTab('read');
 capEl.textContent=SC[0].caps[0][1];
 requestAnimationFrame(frame);
 })();
 </script>
+
+</body>
+</html>
