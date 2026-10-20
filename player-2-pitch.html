@@ -29,9 +29,10 @@ body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
 .sndbtn{font-family:var(--f-mono);font-size:18px;color:var(--screen);background:var(--amber);border:0;border-radius:7px;padding:3px 10px;cursor:pointer;display:flex;gap:6px;align-items:center;letter-spacing:.04em}
 .sndbtn svg{width:16px;height:16px;fill:currentColor}
 .sndbtn.off{animation:pulse 1.4s ease-in-out infinite}
+.sndbtn.mute{color:var(--dim);background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
 .sndbtn.on{color:var(--green);background:transparent;box-shadow:inset 0 0 0 2px var(--green)}
 .sndbtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-@media (max-width:440px){.strip .wide{display:none}.strip{font-size:16px}.sndbtn{font-size:16px;padding:3px 8px}}
+@media (max-width:440px){.strip .wide{display:none}.strip .right{gap:6px}.sndbtn.on span,.sndbtn.mute span{display:none}.sndbtn.on,.sndbtn.mute{padding:4px 7px}.strip{font-size:16px}.sndbtn{font-size:16px;padding:3px 8px}}
 @keyframes pulse{50%{box-shadow:0 0 14px rgba(255,181,71,.8)}}
 @media (prefers-reduced-motion:reduce){.sndbtn.off{animation:none}}
 .screen{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:14px;overflow:hidden;background:var(--screen);box-shadow:0 0 0 2px var(--line),0 0 0 9px #11152a,0 0 40px rgba(95,243,255,.12);cursor:pointer;touch-action:manipulation}
@@ -58,7 +59,7 @@ body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
 </style>
 
 <div class="app">
-  <div class="strip"><span><b>PLAYER 2</b><span class="wide"> · PITCH</span></span><span class="right"><button class="sndbtn off" id="snd" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg><span id="sndLabel">SOUND?</span></button><span id="clock">0:00/4:03</span></span></div>
+  <div class="strip"><span><b>PLAYER 2</b><span class="wide"> · PITCH</span></span><span class="right"><button class="sndbtn off" id="snd" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg><span id="sndLabel">SOUND?</span></button><button class="sndbtn on" id="vce" aria-pressed="true" hidden><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg><span id="vceLabel">VOICE</span></button><span id="clock">0:00/4:03</span></span></div>
   <div class="screen" id="screen" role="img" aria-label="Animated pitch for the learning app">
     <canvas id="cv"></canvas>
     <div class="scan"></div>
@@ -450,6 +451,20 @@ const SFX=[
  [[1.4,'blip'],[2.8,'blip'],[6,'blip']]
 ];
 let prevSt=-1;
+
+/* ---------- narration (device voice, English) ---------- */
+const ttsOK='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+let voiceOn=false,voice=null,spKey=null,spDone=true,spStart=0,spMax=0;
+const SAY=[['F = qvB','F equals q v B'],['HKDSE','H K D S E'],['HSC','H S C'],['(Dunlosky et al., 2013)',', according to Dunlosky and colleagues in 2013'],['Lorentz','Lorentz'],["'Not quite'",'not quite'],["'Who's right?'","who's right"],['1 day, 3 days and 1 week','one day, three days and one week'],['…',', ']];
+const spoken=txt=>SAY.reduce((t,[a,b])=>t.split(a).join(b),txt);
+const BAD=/albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/i;
+function pickVoice(){if(!ttsOK)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)&&!BAD.test(v.name));if(!vs.length)return;const sc=v=>(/natural|neural|premium|enhanced|siri/i.test(v.name)?6:0)+(/google/i.test(v.name)?3:0)+(/en[-_]au/i.test(v.lang)?2.5:/en[-_]gb/i.test(v.lang)?1.5:/en[-_]us/i.test(v.lang)?1:0)+(/compact/i.test(v.name)?-3:0)+(v.localService?.5:0);voice=vs.sort((a,b)=>sc(b)-sc(a))[0]}
+if(ttsOK){pickVoice();speechSynthesis.addEventListener?.('voiceschanged',pickVoice)}
+const est=txt=>spoken(txt).split(/\s+/).length/2.6+.4;
+function segRate(i,k){const c=SC[i].caps,a=(k+1<c.length?c[k+1][0]:SC[i].dur)-c[k][0];return a/Math.max(a,est(c[k][1]))}
+function duck(on){if(musicGain&&ac)musicGain.gain.setTargetAtTime(on?.3:1,ac.currentTime,.15)}
+function stopSpeech(){spKey=null;spDone=true;duck(false);if(ttsOK)try{speechSynthesis.cancel()}catch(e){}}
+function narrate(i,k){if(!ttsOK||!voiceOn)return;stopSpeech();const txt=SC[i].caps[k][1],key=i+':'+k;try{const u=new SpeechSynthesisUtterance(spoken(txt));if(voice){u.voice=voice;u.lang=voice.lang}else u.lang='en-AU';u.rate=1;u.pitch=1;u.volume=1;const fin=()=>{if(spKey===key){spDone=true;duck(false)}};u.onend=fin;u.onerror=fin;spKey=key;spDone=false;spStart=performance.now();spMax=est(txt)*1800+3000;duck(true);speechSynthesis.speak(u)}catch(e){spDone=true}}
 /* ---------- player ---------- */
 const durs=SC.map(s=>s.dur),total=durs.reduce((a,b)=>a+b,0);
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
@@ -458,9 +473,10 @@ const capEl=document.getElementById('cap'),pipsEl=document.getElementById('pips'
 SC.forEach((s,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',`Scene ${i+1}: ${s.name}`);b.innerHTML='<span><i></i></span>';b.onclick=()=>go(i);pipsEl.appendChild(b)});
 const fills=[...pipsEl.querySelectorAll('i')];
 document.getElementById('script').innerHTML=SC.map((s,i)=>`<h3>${String(i+1).padStart(2,'0')} ${s.name}</h3>`+s.caps.map(c=>`<p>${c[1]}</p>`).join('')).join('');
-function go(i){si=clamp(i,0,SC.length-1);st=0;capIdx=-1;joinedAt=null;prevSt=-1}
-function setPlaying(p){playing=p;pausedEl.hidden=p;document.getElementById('playLabel').textContent=p?'PAUSE':'PLAY';document.getElementById('play').setAttribute('aria-label',p?'Pause':'Play');document.getElementById('playIcon').innerHTML=p?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M7 4v16l13-8z"/>'}
-const sndBtn=document.getElementById('snd');sndBtn.onclick=e=>{e.stopPropagation();initAudio();if(!ac)return;ac.resume();soundOn=!soundOn;sndBtn.classList.toggle('on',soundOn);sndBtn.classList.remove('off');sndBtn.setAttribute('aria-pressed',soundOn);document.getElementById('sndLabel').textContent=soundOn?'SOUND ON':'MUTED';if(soundOn)sfx('blip')};
+function go(i){stopSpeech();si=clamp(i,0,SC.length-1);st=0;capIdx=-1;joinedAt=null;prevSt=-1}
+function setPlaying(p){const was=playing;playing=p;if(!p)stopSpeech();else if(!was&&voiceOn&&capIdx>=0)narrate(si,capIdx);pausedEl.hidden=p;document.getElementById('playLabel').textContent=p?'PAUSE':'PLAY';document.getElementById('play').setAttribute('aria-label',p?'Pause':'Play');document.getElementById('playIcon').innerHTML=p?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M7 4v16l13-8z"/>'}
+const sndBtn=document.getElementById('snd');sndBtn.onclick=e=>{e.stopPropagation();initAudio();if(!ac)return;ac.resume();soundOn=!soundOn;sndBtn.classList.toggle('on',soundOn);sndBtn.classList.remove('off');sndBtn.setAttribute('aria-pressed',soundOn);document.getElementById('sndLabel').textContent=soundOn?'SOUND ON':'MUTED';if(soundOn)sfx('blip');const vb=document.getElementById('vce');if(ttsOK&&soundOn&&vb.hidden){vb.hidden=false;voiceOn=true;if(playing&&capIdx>=0)narrate(si,capIdx)}};
+const vceBtn=document.getElementById('vce');vceBtn.onclick=e=>{e.stopPropagation();voiceOn=!voiceOn;vceBtn.classList.toggle('on',voiceOn);vceBtn.classList.toggle('mute',!voiceOn);vceBtn.setAttribute('aria-pressed',voiceOn);document.getElementById('vceLabel').textContent=voiceOn?'VOICE':'NO VOICE';if(voiceOn){if(playing&&capIdx>=0)narrate(si,capIdx)}else stopSpeech()};
 document.getElementById('play').onclick=()=>setPlaying(!playing);
 document.getElementById('next').onclick=()=>{if(si<SC.length-1)go(si+1)};
 document.getElementById('prev').onclick=()=>{go(st>1.5?si:si-1)};
@@ -472,7 +488,13 @@ addEventListener('keydown',e=>{if(e.target.closest('button,summary'))return;if(e
 
 function frame(now){
  const dt=Math.min(.1,(now-last)/1000);last=now;
- if(playing){st+=dt;if(st>=SC[si].dur&&si<SC.length-1){si++;st=0;capIdx=-1;joinedAt=null;prevSt=-1}}
+ if(playing){
+  const sc=SC[si];let k=0;sc.caps.forEach((c,i)=>{if(st>=c[0])k=i});
+  let rate=1,limit=Infinity;
+  if(voiceOn&&spKey===si+':'+k&&!spDone){if(performance.now()-spStart>spMax)spDone=true;else{rate=segRate(si,k);limit=(k+1<sc.caps.length?sc.caps[k+1][0]:sc.dur)-.02}}
+  st=Math.min(st+dt*rate,Math.max(st,limit));
+  if(st>=sc.dur&&si<SC.length-1){si++;st=0;capIdx=-1;joinedAt=null;prevSt=-1}
+ }
  if(playing&&soundOn)for(const e of SFX[si]||[])if(e[0]>prevSt&&e[0]<=st)sfx(e[1]);
  prevSt=st;
  const s=SC[si];
@@ -482,7 +504,7 @@ function frame(now){
  ctx.save();ctx.globalAlpha=eo(st/.35);try{s.draw(st)}catch(err){console.error(err)}ctx.restore();
  // caption
  let ci=0;s.caps.forEach((c,i)=>{if(st>=c[0])ci=i});
- if(ci!==capIdx){capIdx=ci;capEl.classList.add('fade');const txt=s.caps[ci][1];setTimeout(()=>{capEl.textContent=txt;capEl.classList.remove('fade')},120)}
+ if(ci!==capIdx){capIdx=ci;if(playing)narrate(si,ci);capEl.classList.add('fade');const txt=s.caps[ci][1];setTimeout(()=>{capEl.textContent=txt;capEl.classList.remove('fade')},120)}
  fills.forEach((f,i)=>{f.style.width=(i<si?100:i>si?0:clamp(st/SC[i].dur)*100)+'%'});
  const el=durs.slice(0,si).reduce((a,b)=>a+b,0)+Math.min(st,s.dur);
  clockEl.textContent=fmt(el)+'/'+fmt(total);
