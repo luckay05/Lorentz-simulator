@@ -1,0 +1,494 @@
+<title>Player 2 Pitch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600;700&family=VT323&display=swap">
+<style>
+/* Layout: one arcade cabinet, centred. Screen (canvas, 4:5) on top, caption bar under it, control deck at the bottom. Single dark look by choice. */
+:root{
+  --cab:#0a0c16;      /* cabinet body */
+  --screen:#05070e;   /* glass */
+  --line:#1d2742;     /* grid, borders */
+  --dim:#6b77a0;      /* secondary text */
+  --fg:#e9edff;       /* main text */
+  --cyan:#5ff3ff;     /* velocity, highlights */
+  --amber:#ffb547;    /* force, questions */
+  --green:#7dff9a;    /* understanding */
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-mono:"VT323",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--cab);color:var(--fg);font-family:var(--f-body)}
+.app{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-block:12px 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+.strip,.screen,.cap,.pips,.deck,.transcript{width:min(100%,560px,calc((100vh - 225px)*.8));width:min(100%,560px,calc((100svh - 225px)*.8));min-width:min(100%,280px)}
+.strip{display:flex;justify-content:space-between;align-items:baseline;gap:12px;white-space:nowrap;font-family:var(--f-mono);font-size:17px;color:var(--dim);letter-spacing:.04em}
+.strip b{color:var(--cyan);font-weight:400}
+.strip .right{display:flex;gap:10px;align-items:center}
+.sndbtn{font-family:var(--f-mono);font-size:18px;color:var(--screen);background:var(--amber);border:0;border-radius:7px;padding:3px 10px;cursor:pointer;display:flex;gap:6px;align-items:center;letter-spacing:.04em}
+.sndbtn svg{width:16px;height:16px;fill:currentColor}
+.sndbtn.off{animation:pulse 1.4s ease-in-out infinite}
+.sndbtn.on{color:var(--green);background:transparent;box-shadow:inset 0 0 0 2px var(--green)}
+.sndbtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+@media (max-width:440px){.strip .wide{display:none}.strip{font-size:16px}.sndbtn{font-size:16px;padding:3px 8px}}
+@keyframes pulse{50%{box-shadow:0 0 14px rgba(255,181,71,.8)}}
+@media (prefers-reduced-motion:reduce){.sndbtn.off{animation:none}}
+.screen{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:14px;overflow:hidden;background:var(--screen);box-shadow:0 0 0 2px var(--line),0 0 0 9px #11152a,0 0 40px rgba(95,243,255,.12);cursor:pointer;touch-action:manipulation}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.45) 100%)}
+.paused{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--f-mono);font-size:26px;color:var(--amber);background:rgba(5,7,14,.85);border:2px solid var(--amber);padding:6px 16px;border-radius:8px;pointer-events:none;letter-spacing:.05em}
+.cap{margin:0;min-height:3.9em;font-size:clamp(15px,2.2vw,18px);line-height:1.35;text-wrap:balance;text-align:center;color:var(--fg);padding:10px 14px;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;background:#070a14;transition:opacity .25s}
+.cap.fade{opacity:.15}
+.pips{display:flex;gap:3px}
+.pips button{flex:1;height:14px;padding:4px 0;border:0;background:transparent;cursor:pointer;min-width:0}
+.pips button span{display:block;height:6px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.pips button span i{position:absolute;inset:0 auto 0 0;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.pips button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.deck{display:flex;gap:6px;justify-content:center}
+.deck button{font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.05em;color:var(--fg);background:#0e1324;border:2px solid var(--line);border-radius:10px;min-height:46px;padding:0 11px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.deck button svg{width:18px;height:18px;fill:currentColor}
+.deck button.main{color:var(--screen);background:var(--amber);border-color:var(--amber);min-width:104px;justify-content:center}
+.deck button:hover{border-color:var(--cyan)}
+.deck button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.transcript{font-size:15px;color:var(--dim)}
+.transcript summary{cursor:pointer;font-family:var(--f-display);font-weight:600;letter-spacing:.05em;color:var(--fg);padding:6px 0}
+.transcript h3{font-family:var(--f-mono);font-weight:400;font-size:20px;color:var(--cyan);margin:14px 0 4px}
+.transcript p{margin:0 0 6px;color:var(--fg);line-height:1.45;max-width:65ch}
+</style>
+
+<div class="app">
+  <div class="strip"><span><b>PLAYER 2</b><span class="wide"> · PITCH</span></span><span class="right"><button class="sndbtn off" id="snd" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg><span id="sndLabel">SOUND?</span></button><span id="clock">0:00/4:03</span></span></div>
+  <div class="screen" id="screen" role="img" aria-label="Animated pitch for the learning app">
+    <canvas id="cv"></canvas>
+    <div class="scan"></div>
+    <div class="paused" id="paused" hidden>PAUSED · TAP TO PLAY</div>
+  </div>
+  <p class="cap" id="cap" aria-live="polite"></p>
+  <div class="pips" id="pips"></div>
+  <div class="deck">
+    <button id="prev" aria-label="Previous scene"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>BACK</button>
+    <button id="play" class="main" aria-label="Pause"><svg viewBox="0 0 24 24" id="playIcon"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg><span id="playLabel">PAUSE</span></button>
+    <button id="next" aria-label="Next scene">NEXT<svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button id="replay" aria-label="Replay from the start"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+  </div>
+  <details class="transcript"><summary>Read the full script</summary><div id="script"></div></details>
+</div>
+
+<script>
+(()=>{
+const C={bg:'#05070e',grid:'#1d2742',dim:'#6b77a0',fg:'#e9edff',cyan:'#5ff3ff',amber:'#ffb547',mag:'#ff6bd8',green:'#7dff9a',ghost:'#8a93b8'};
+const F={d:'"Chakra Petch","Segoe UI",system-ui,sans-serif',m:'"VT323",ui-monospace,Menlo,monospace',b:'"Atkinson Hyperlegible",system-ui,sans-serif'};
+const W=600,H=750;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+let S=1;
+function resize(){const r=cv.getBoundingClientRect();const d=Math.min(window.devicePixelRatio||1,2.5);cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));S=cv.width/W;}
+new ResizeObserver(resize).observe(cv);resize();
+
+/* ---------- helpers ---------- */
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const eo=x=>{x=clamp(x);return 1-Math.pow(1-x,3)};
+const eio=x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const Wn=(t,s,d=.6)=>eo((t-s)/d);
+function hexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}
+function glow(c,b){ctx.shadowColor=c;ctx.shadowBlur=b*S}
+function T(s,x,y,o={}){const{size=24,c=C.fg,f='d',w=600,a='center',al=1,g=8,base='middle'}=o;if(al<=0.01)return;ctx.save();ctx.globalAlpha*=al;ctx.font=`${w} ${size}px ${F[f]}`;ctx.textAlign=a;ctx.textBaseline=base;if(g)glow(c,g);else ctx.shadowBlur=0;ctx.fillStyle=c;ctx.fillText(s,x,y);ctx.restore()}
+function wrapT(s,x,y,maxW,lh,o={}){const{size=20,f='b',w=400}=o;ctx.save();ctx.font=`${w} ${size}px ${F[f]}`;const words=s.split(' ');let line='',lines=[];for(const wd of words){const test=line?line+' '+wd:wd;if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=wd}else line=test}lines.push(line);ctx.restore();lines.forEach((l,i)=>T(l,x,y+i*lh,{...o,size,f,w}));return lines.length}
+function L(x1,y1,x2,y2,c,lw=2,al=1,g=8,dash=null){ctx.save();ctx.globalAlpha*=al;if(g)glow(c,g);ctx.strokeStyle=c;ctx.lineWidth=lw;ctx.lineCap='round';if(dash)ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
+function R(x,y,w,h,c,o={}){const{lw=2,al=1,g=8,fill=null,r=8,dash=null}=o;if(w<=0.5||h<=0.5||al<=0.01)return;ctx.save();ctx.globalAlpha*=al;ctx.beginPath();ctx.roundRect(x,y,w,h,Math.min(r,h/2,w/2));if(fill){ctx.fillStyle=fill;ctx.fill()}if(lw>0&&c){if(dash)ctx.setLineDash(dash);if(g)glow(c,g);ctx.strokeStyle=c;ctx.lineWidth=lw;ctx.stroke()}ctx.restore()}
+function circ(x,y,r,c,o={}){const{lw=2,al=1,g=8,fill=null,dash=null}=o;if(r<=0||al<=0.01)return;ctx.save();ctx.globalAlpha*=al;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(fill){ctx.fillStyle=fill;if(g)glow(fill,g);ctx.fill()}if(c){ctx.shadowBlur=0;if(dash)ctx.setLineDash(dash);if(g)glow(c,g);ctx.strokeStyle=c;ctx.lineWidth=lw;ctx.stroke()}ctx.restore()}
+function dot(x,y,r,c,g=16){circ(x,y,r,null,{fill:c,g})}
+function arrow(x1,y1,x2,y2,c,o={}){const{lw=3,al=1,g=10,hs=11}=o;const ang=Math.atan2(y2-y1,x2-x1),len=Math.hypot(x2-x1,y2-y1);if(len<2||al<=0.01)return;const h=Math.min(hs,len*.6);ctx.save();ctx.globalAlpha*=al;glow(c,g);ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=lw;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(ang)*h*.8,y2-Math.sin(ang)*h*.8);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-Math.cos(ang-.45)*h,y2-Math.sin(ang-.45)*h);ctx.lineTo(x2-Math.cos(ang+.45)*h,y2-Math.sin(ang+.45)*h);ctx.closePath();ctx.fill();ctx.restore()}
+function tick(x,y,c,s=8,al=1){ctx.save();ctx.globalAlpha*=al;glow(c,8);ctx.strokeStyle=c;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(x-s,y);ctx.lineTo(x-s*.3,y+s*.7);ctx.lineTo(x+s,y-s*.8);ctx.stroke();ctx.restore()}
+function field(al=.13,x0=0,y0=50,x1=W,y1=H,step=46){ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle=C.mag;ctx.lineWidth=1.4;ctx.beginPath();for(let x=x0+step/2;x<x1;x+=step)for(let y=y0+step/2;y<y1;y+=step){ctx.moveTo(x-3.5,y-3.5);ctx.lineTo(x+3.5,y+3.5);ctx.moveTo(x+3.5,y-3.5);ctx.lineTo(x-3.5,y+3.5)}ctx.stroke();ctx.restore()}
+function pill(x,y,w,h,c,label,o={}){const{size=20,al=1,sc=1,f='d'}=o;if(al<=0.01)return;ctx.save();ctx.globalAlpha*=al;ctx.translate(x,y);ctx.scale(sc,sc);R(-w/2,-h/2,w,h,c,{fill:hexA(c,.1),r:h/2,g:12});T(label,0,1,{size,c,w:700,f});ctx.restore()}
+/* orbit: starts at the bottom of the circle moving right (positive charge, B into the screen) */
+const P=(cx,cy,r,th)=>[cx+r*Math.sin(th),cy+r*Math.cos(th)];
+function trail(cx,cy,r,th,c,len=1.4){len=Math.min(len,th);if(len<=0)return;const b=ctx.globalAlpha;ctx.save();ctx.lineCap='round';glow(c,8);ctx.strokeStyle=c;ctx.lineWidth=3;const n=24;for(let k=0;k<n;k++){const[x1,y1]=P(cx,cy,r,th-len*k/n),[x2,y2]=P(cx,cy,r,th-len*(k+1)/n);ctx.globalAlpha=b*(1-k/n)*.85;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}ctx.restore()}
+function charge(cx,cy,r,th,c,vLen,fLen,fc,o={}){const[x,y]=P(cx,cy,r,th);if(o.trail!==false)trail(cx,cy,r,th,c);if(vLen)arrow(x,y,x+Math.cos(th)*vLen,y-Math.sin(th)*vLen,c,{lw:3});if(fLen)arrow(x,y,x-Math.sin(th)*fLen,y-Math.cos(th)*fLen,fc||C.amber,{lw:3});dot(x,y,o.size||8,c,18);return[x,y]}
+function bezier(x1,y1,x2,y2,c,p,lw=2.5,al=1){if(p<=0)return;const my=(y1+y2)/2;ctx.save();ctx.globalAlpha*=al;glow(c,8);ctx.strokeStyle=c;ctx.lineWidth=lw;ctx.lineCap='round';ctx.beginPath();const n=40;for(let i=0;i<=Math.round(n*clamp(p));i++){const u=i/n,v=1-u;const x=v*v*v*x1+3*v*v*u*x1+3*v*u*u*x2+u*u*u*x2;const y=v*v*v*y1+3*v*v*u*my+3*v*u*u*my+u*u*u*y2;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ctx.restore()}
+function box(cx,cy,w,h,c,lines,o={}){const{al=1,size=18,fc=C.fg,lh=21,f='d',w8=600,g=10,dash=null}=o;if(al<=0.01)return;R(cx-w/2,cy-h/2,w,h,c,{fill:hexA(c,.08),al,g,dash});const y0=cy-(lines.length-1)*lh/2;lines.forEach((s,i)=>T(s,cx,y0+i*lh,{size,c:fc,al,f,w:w8,g:4}))}
+const rnd=i=>{const x=Math.sin(i*12.9898+78.233)*43758.5453;return x-Math.floor(x)};
+const blink=t=>RM?1:(Math.sin(t*5)>-.3?1:.2);
+
+/* ---------- scenes ---------- */
+const SC=[
+{name:'START',dur:9,caps:[[0,"Hi! This is the app I want us to build together. It takes about four minutes, so sit back."],[4.5,"It's a science app for students. And it is built on one simple idea."]],
+draw(t){field(.12);
+ const cx=300,cy=340,Rr=200,th=t*2*Math.PI/6;
+ circ(cx,cy,Rr,C.cyan,{lw:1,al:.18,g:0,dash:[4,9]});
+ charge(cx,cy,Rr,th,C.cyan,48,40,C.amber,{size:9});
+ T('A PITCH FOR PLAYER 2',300,215,{size:26,f:'m',c:C.amber,w:400,al:Wn(t,0,.6)});
+ T('SCIENCE',300,298,{size:78,w:700,c:C.cyan,g:18,al:Wn(t,.3,.8)});
+ T('YOU UNDERSTAND',300,370,{size:40,w:600,al:Wn(t,.9,.8)});
+ T('fun · logical · deep',300,424,{size:20,f:'b',w:400,c:C.dim,g:0,al:Wn(t,1.6,.8)});
+ if(t>2.6)T('PRESS START',300,632,{size:32,f:'m',w:400,c:C.amber,al:blink(t)});
+ T('× = magnetic field into the screen',300,712,{size:14,f:'b',w:400,c:C.dim,g:0,al:Wn(t,3,.8)});
+}},
+{name:'THE COPYING TRAP',dur:15,caps:[[0,"Picture a student copying F = qvB a thousand times."],[4,"It feels like learning. The hand gets faster and the page fills up."],[8,"But copying needs no thinking. Ask them why, and nothing is there."],[11.3,"Psychologists call this the illusion of competence: smooth feels like mastery."]],
+draw(t){
+ const n=Math.round(1000*eio(clamp(t/10)));
+ T('COPIED ×'+n,190,104,{size:42,f:'m',c:C.amber,w:400});
+ R(40,140,300,520,C.dim,{fill:hexA(C.cyan,.03),g:0,lw:1.5});
+ for(let k=0;k<19;k++)L(56,186+k*26,324,186+k*26,C.grid,1,1,0);
+ const rows=19*eio(clamp(t/9.5)),full=Math.floor(rows),frac=rows-full;
+ for(let k=0;k<Math.min(19,full+1);k++){const w=k<full?280:frac*268;if(w<=0)continue;ctx.save();ctx.beginPath();ctx.rect(56,160+k*26,w,26);ctx.clip();T('F = qvB    F = qvB    F = qvB',60,174+k*26,{size:16,a:'left',c:C.cyan,al:.8,g:4});ctx.restore()}
+ const meter=(x,v,c,lab)=>{R(x,180,70,380,C.dim,{g:0,lw:1.5});const h=376*v;R(x+2,558-h,66,h,c,{fill:hexA(c,.55),g:12,lw:0,r:4});T(Math.round(v*100)+'%',x+35,158,{size:34,f:'m',c,w:400});lab.forEach((s,i)=>T(s,x+35,588+i*20,{size:13,c:C.fg,w:600,g:0}))};
+ meter(385,.95*eo(clamp((t-.5)/9)),C.green,['FEELS LIKE','LEARNING']);
+ meter(480,.04*eo(clamp((t-1)/6)),C.amber,['UNDERSTANDS','WHY']);
+ if(t>10.8){const p=eo((t-10.8)/.35);ctx.save();ctx.translate(300,392);ctx.rotate(-.12);const s=1.7-.7*p;ctx.scale(s,s);ctx.globalAlpha*=p;R(-215,-46,430,92,C.amber,{fill:'rgba(5,7,14,.9)',lw:4,g:16});T('ILLUSION OF',0,-16,{size:24,c:C.amber,w:700});T('COMPETENCE',0,18,{size:32,c:C.amber,w:700});ctx.restore()}
+}},
+{name:'MORE FALSE LEARNING',dur:12,caps:[[0,"Copying isn't the only trap."],[2.2,"Rereading and highlighting. Watching someone else solve it. The same question twenty times. Cramming all night."],[7,"They all feel productive. In a major review of study techniques, rereading and highlighting were rated low utility (Dunlosky et al., 2013)."]],
+draw(t){
+ T('FALSE LEARNING',300,92,{size:30,w:700,c:C.amber});
+ const cards=[[38,140,'REREAD & HIGHLIGHT'],[312,140,'WATCH IT BEING SOLVED'],[38,362,'SAME QUESTION ×20'],[312,362,'CRAM ALL NIGHT']];
+ cards.forEach(([x,y,lab],i)=>{const a=Wn(t,.4+i*.9,.5);if(a<=0)return;ctx.save();ctx.globalAlpha*=a;ctx.translate(0,(1-a)*18);
+  R(x,y,250,200,C.dim,{fill:hexA(C.cyan,.03),g:0,lw:1.5});const cx=x+125,cy=y+82;
+  if(i===0){R(cx-42,cy-52,84,104,C.fg,{g:0,lw:1.5,al:.7});const hw=60*eo(((t*.7)%1.6)/1);for(let k=0;k<6;k++)L(cx-30,cy-34+k*14,cx+30,cy-34+k*14,C.dim,2,1,0);R(cx-32,cy-6,hw,12,null,{fill:hexA(C.amber,.45),lw:0,r:2});R(cx-32,cy+8,hw*.8,12,null,{fill:hexA(C.amber,.45),lw:0,r:2})}
+  if(i===1){R(cx-62,cy-42,124,84,C.cyan,{g:6,lw:2});ctx.save();ctx.fillStyle=C.cyan;glow(C.cyan,10);ctx.beginPath();ctx.moveTo(cx-12,cy-18);ctx.lineTo(cx+18,cy);ctx.lineTo(cx-12,cy+18);ctx.closePath();ctx.fill();ctx.restore();T('nodding along…',cx,cy+58,{size:14,f:'b',w:400,c:C.dim,g:0})}
+  if(i===2){for(let k=3;k>=0;k--)R(cx-60+k*8,cy-34-k*8,120,62,C.dim,{fill:C.bg,g:0,lw:1.5});T('2x + 3 = 7',cx-36,cy-27,{size:18,c:C.fg,w:600,a:'left',g:0});T('×20',cx+68,cy+44,{size:28,f:'m',c:C.amber,w:400})}
+  if(i===3){circ(cx,cy-4,42,C.fg,{lw:2,g:0,al:.8});const a1=t*5,a2=t*.45;L(cx,cy-4,cx+Math.sin(a1)*32,cy-4-Math.cos(a1)*32,C.cyan,2.5);L(cx,cy-4,cx+Math.sin(a2)*22,cy-4-Math.cos(a2)*22,C.amber,3);T('3:00 AM',cx,cy+60,{size:22,f:'m',c:C.dim,w:400,g:0})}
+  T(lab,cx,y+172,{size:15,c:C.fg,w:700,g:0});ctx.restore()});
+ const a=Wn(t,6.4,.6);
+ if(a>0){T('FEELS PRODUCTIVE',90,620,{size:20,a:'left',al:a,c:C.fg,g:0});L(290,624,440,624,C.dim,1.5,a,0,[2,6]);T('YES',510,620,{size:30,f:'m',w:400,a:'right',c:C.green,al:a});
+  const b=Wn(t,7.4,.6);T('BUILDS UNDERSTANDING',90,672,{size:20,a:'left',al:b,c:C.fg,g:0});L(330,676,440,676,C.dim,1.5,b,0,[2,6]);T('BARELY',510,672,{size:30,f:'m',w:400,a:'right',c:C.amber,al:b})}
+}},
+{name:'OUR BELIEF',dur:15,caps:[[0,"So here is our belief."],[1.4,"Learning science should feel fun, easy, effortless and convenient. And fast and efficient too."],[5.4,"And it should leave students thinking logically, with real, deep understanding."],[10,"Effortless doesn't mean no thinking. We cut the busywork, the friction and the fear. The thinking stays, and it feels like a puzzle."]],
+draw(t){
+ T('OUR BELIEF',300,92,{size:34,w:700,c:C.amber});
+ T('HOW IT FEELS',300,148,{size:22,f:'m',w:400,c:C.dim,g:0,al:Wn(t,.6)});
+ ['FUN','EASY','EFFORTLESS','CONVENIENT','FAST','EFFICIENT'].forEach((wd,i)=>{const a=Wn(t,1+i*.45,.4);pill(i%2?430:170,205+Math.floor(i/2)*60,220,46,C.cyan,wd,{al:a,sc:.6+.4*a,size:19})});
+ const pa=Wn(t,5,.6);if(pa>0)arrow(300,368,300,368+56*pa,C.amber,{lw:3});
+ T('WHAT IT BUILDS',300,458,{size:22,f:'m',w:400,c:C.dim,g:0,al:Wn(t,5.4)});
+ [['LOGICAL THINKING',512],['DEEP UNDERSTANDING',578]].forEach(([wd,y],i)=>{const a=Wn(t,5.8+i*.6,.5);pill(300,y,390,54,C.green,wd,{al:a,sc:(.7+.3*a)*(t>7.5&&!RM?1+.025*Math.sin(t*3+i):1),size:24})});
+ wrapT('Effortless means no busywork, no friction and no fear. The thinking stays.',300,664,500,24,{size:18,c:C.fg,al:Wn(t,10,.6),g:0});
+}},
+{name:'LOGIC, NOT MEMORY',dur:17,caps:[[0,"This is the heart of the app: understand the logic. Don't memorise it."],[3,"Start from one root idea, and grow every formula from it in front of the student."],[7,"The same logic explains real machines and real nature: mass spectrometers, cyclotrons, PET scan medicine, auroras."],[11.4,"Forget a formula? Rebuild it from the root in seconds. Memorised facts can't do that."],[14,"Understanding gives you memory, application and the power to create."]],
+draw(t){
+ T('UNDERSTAND THE LOGIC',300,88,{size:30,w:700,c:C.cyan});
+ T("don't memorise it",300,122,{size:18,f:'b',w:400,c:C.dim,g:0});
+ box(300,639,440,78,C.amber,['ROOT IDEA'],{al:Wn(t,.5),size:14,fc:C.amber,w8:700});
+ T('The magnetic force points to the centre.',300,652,{size:18,f:'b',w:700,c:C.fg,al:Wn(t,.5),g:0});
+ T('',0,0);
+ // the r node forgets and is rebuilt
+ const lost=t>11.5&&t<12.9, rebuilt=t>=12.9&&t<15.5;
+ bezier(300,600,180,500,rebuilt?C.green:C.cyan,Wn(t,2,.8),rebuilt?3.5:2.5);
+ bezier(300,600,420,500,C.cyan,Wn(t,2.6,.8));
+ const nr=Wn(t,3,.5);
+ if(lost){box(180,470,190,64,C.dim,['?'],{size:26,fc:C.dim,dash:[5,6],g:0})}
+ else{box(180,470,190,64,rebuilt?C.green:C.cyan,[],{al:nr});T(rebuilt?'REBUILT FROM THE ROOT':'circle size',180,452,{size:12,f:'b',w:700,c:rebuilt?C.green:C.dim,g:0,al:nr});T('r = mv/qB',180,478,{size:22,w:600,c:C.fg,al:nr,g:4})}
+ const ta=Wn(t,3.6,.5);box(420,470,190,64,C.cyan,[],{al:ta});T('lap time',420,452,{size:12,f:'b',w:700,c:C.dim,g:0,al:ta});T('T = 2πm/qB',420,478,{size:22,w:600,c:C.fg,al:ta,g:4});
+ const leaves=[[80,['mass','spectrometer'],180],[215,['auroras'],180],[385,['cyclotron'],420],[520,['PET scan','medicine'],420]];
+ leaves.forEach(([x,lines,px],i)=>{const s=6+i*.45;bezier(px,442,x,362,C.cyan,Wn(t,s,.6),2,.8);box(x,330,118,62,C.mag,lines,{al:Wn(t,s+.4,.5),size:15,fc:C.fg,lh:18})});
+ T('1 ROOT  →  2 FORMULAS  →  4 REAL USES',300,238,{size:24,f:'m',w:400,c:C.amber,al:Wn(t,9.4,.6)});
+ ['UNDERSTAND','REMEMBER','APPLY','CREATE'].forEach((s,i)=>T(s,[80,225,370,515][i],718,{size:17,w:700,c:C.green,al:Wn(t,14+i*.5,.4)}));
+}},
+{name:'WHY IT LASTS',dur:15,caps:[[0,"Why does this matter? Memory."],[1.5,"Memorised facts fade fast. Psychologists have measured this forgetting curve since the 1880s."],[6,"Understood ideas are connected, so they fade slower. A one-minute recall after 1 day, 3 days and 1 week makes them last."],[11,"In Katona's classic experiments, people who learned the principle remembered longer and solved new problems better than people who memorised the steps."]],
+draw(t){
+ T('WHY IT LASTS',300,88,{size:30,w:700,c:C.cyan});
+ const X=d=>90+450*Math.sqrt(d/30),Y=v=>560-340*v/100;
+ L(90,560,545,560,C.dim,2,1,0);L(90,560,90,200,C.dim,2,1,0);
+ T('WHAT YOU STILL KNOW',90,160,{size:13,f:'b',w:700,a:'left',c:C.dim,g:0});
+ [[0,'0'],[1,'1'],[3,'3'],[7,'7'],[14,'14'],[30,'30']].forEach(([d,s])=>{L(X(d),560,X(d),566,C.dim,2,1,0);T(s,X(d),582,{size:20,f:'m',w:400,c:C.dim,g:0})});
+ T('DAYS AFTER LEARNING',318,606,{size:13,f:'b',w:700,c:C.dim,g:0});
+ const mem=d=>8+92*Math.exp(-d/2.2);
+ const und=d=>d<1?100*Math.exp(-d/4):d<3?100*Math.exp(-(d-1)/9):d<7?100*Math.exp(-(d-3)/20):100*Math.exp(-(d-7)/80);
+ const plot=(fn,c,p)=>{if(p<=0)return;ctx.save();glow(c,10);ctx.strokeStyle=c;ctx.lineWidth=3;ctx.lineJoin='round';ctx.beginPath();const N=400;for(let i=0;i<=Math.round(N*p);i++){const u=i/N,d=30*u*u;const x=X(d),y=Y(fn(d));i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ctx.restore()};
+ const p1=eio((t-1.5)/4),p2=eio((t-6)/5);
+ plot(mem,C.amber,p1);plot(und,C.cyan,p2);
+ if(p1>.98)T('MEMORISED',540,Y(mem(30))-18,{size:15,w:700,a:'right',c:C.amber});
+ [[1,'1 day'],[3,'3 days'],[7,'1 week']].forEach(([d,s],i)=>{if(p2>=Math.sqrt(d/30)){dot(X(d),Y(100),5,C.green,12);T(s,X(d),Y(100)-16,{size:12,f:'b',w:700,c:C.green,g:0})}});
+ if(p2>.98)T('UNDERSTOOD + RECALL',540,Y(und(30))-28,{size:15,w:700,a:'right',c:C.cyan});
+ T('Illustration of the forgetting curve (Ebbinghaus, 1885) and the spacing effect',300,636,{size:12,f:'b',w:400,c:C.dim,g:0});
+ const a=Wn(t,11,.6);if(a>0){R(40,662,520,64,C.green,{fill:hexA(C.green,.06),al:a,g:8});wrapT('Katona (1940): learn the principle, and you remember longer and solve new problems better.',300,682,490,22,{size:16,c:C.fg,al:a,g:0})}
+}},
+{name:'THE LESSON LOOP',dur:13,caps:[[0,"Every lesson runs the same loop."],[1,"A real puzzle. Commit to a prediction. Play with the simulation."],[6,"Work out why, from the evidence. Only then does the equation appear."],[10,"Then it comes back later, just before you would forget."]],
+draw(t){
+ T('EVERY LESSON, ONE LOOP',300,92,{size:28,w:700,c:C.amber});
+ const cx=300,cy=405,Rr=188,labs=['PUZZLE','PREDICT','PLAY','EXPLAIN','EQUATION','RECALL'],desc=['a real-world mystery','commit to a guess','touch the simulation','work out why','arrives last','1 day · 3 days · 1 week'];
+ const prog=clamp((t-1)/(1.6*6)),ang=-Math.PI/2+prog*Math.PI*2;
+ circ(cx,cy,Rr,C.dim,{lw:1.5,al:.35,g:0,dash:[3,7]});
+ if(prog>0){ctx.save();glow(C.cyan,10);ctx.strokeStyle=C.cyan;ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,Rr,-Math.PI/2,ang);ctx.stroke();ctx.restore()}
+ let cur=-1;
+ labs.forEach((s,i)=>{const a=-Math.PI/2+i*Math.PI/3,x=cx+Rr*Math.cos(a),y=cy+Rr*Math.sin(a);const lit=prog>=i/6-1e-4&&t>=1;if(lit)cur=i;circ(x,y,50,lit?C.cyan:C.dim,{lw:2.5,fill:lit?'rgba(10,30,40,1)':'rgba(8,10,20,1)',g:lit?16:0});T(s,x,y,{size:s.length>7?14:16,w:700,c:lit?C.fg:C.dim,g:lit?6:0})});
+ if(prog<1&&t>=1){const x=cx+Rr*Math.cos(ang),y=cy+Rr*Math.sin(ang);dot(x,y,7,C.amber,18)}
+ if(cur>=0){T('STEP '+(cur+1)+' / 6',cx,cy-28,{size:22,f:'m',w:400,c:C.dim,g:0});wrapT(desc[cur],cx,cy+10,220,26,{size:22,f:'d',w:700,c:C.cyan})}
+}},
+{name:'A LEVEL IN ACTION',dur:28,caps:[[0,"Here's a real level from the Lorentz Arcade: How long is one lap?"],[4,"A charge circles in a magnetic field. The force always points to the centre."],[7,"Now double its speed. What happens to the lap time? The student sets a guess dial."],[10,"Most students guess shorter. Faster means quicker, right?"],[12.5,"Watch. The circle doubles, the speed doubles…"],[15.5,"…and they finish the lap together. Same lap time."],[19,"That surprise is when learning sticks. A wrong guess gets an orange 'Not quite', never a red cross."],[23,"Then the student builds the reason: twice the distance at twice the speed. The equation comes last."]],
+draw(t){
+ T('LEVEL C3 · HOW LONG IS ONE LAP?',300,74,{size:24,f:'m',w:400,c:C.amber});
+ R(40,100,520,462,C.grid,{fill:'rgba(10,14,28,.6)',g:0,lw:1.5});
+ field(.16,40,100,560,562,46);
+ const om=2*Math.PI/3,Px=300,Py=520;
+ const board=()=>R(40,578,520,152,C.dim,{fill:'rgba(8,11,22,.95)',g:0,lw:1.5});
+ if(t<12){
+  const th=om*t;circ(300,460,60,C.cyan,{lw:1,al:.3,g:0,dash:[3,6]});
+  const[x,y]=charge(300,460,60,th,C.cyan,30,22);
+  T('v',x+Math.cos(th)*40,y-Math.sin(th)*40,{size:18,c:C.cyan,w:700});
+  T('LAP '+(t%3).toFixed(1)+' s',540,128,{size:28,f:'m',w:400,a:'right',c:C.cyan});
+  if(t>3)T('last lap: 3.0 s',540,154,{size:15,f:'b',w:400,a:'right',c:C.dim,g:0});
+  board();
+  if(t<6){T('A charge in a magnetic field.',300,612,{size:19,f:'b',w:700,c:C.fg,g:0});T('The force F points to the centre.',300,644,{size:19,f:'b',w:400,c:C.fg,g:0});arrow(222,690,262,690,C.amber,{lw:3});T('F',276,690,{size:20,c:C.amber,w:700});arrow(330,690,370,690,C.cyan,{lw:3});T('v',384,690,{size:20,c:C.cyan,w:700})}
+  else{
+   T('v ×2  →  LAP TIME ?',300,604,{size:24,f:'m',w:400,c:C.amber});
+   const dc=300,dy=716,dr=70;
+   ctx.save();ctx.strokeStyle=C.dim;ctx.lineWidth=2;ctx.beginPath();ctx.arc(dc,dy,dr,Math.PI,2*Math.PI);ctx.stroke();[Math.PI*4/3,Math.PI*5/3].forEach(a=>{ctx.beginPath();ctx.moveTo(dc+Math.cos(a)*(dr-8),dy+Math.sin(a)*(dr-8));ctx.lineTo(dc+Math.cos(a)*(dr+4),dy+Math.sin(a)*(dr+4));ctx.stroke()});ctx.restore();
+   T('SHORTER',dc+Math.cos(Math.PI*7/6)*104,dy+Math.sin(Math.PI*7/6)*86,{size:15,w:700,c:C.fg,g:0});
+   T('SAME',dc,dy-dr-14,{size:15,w:700,c:C.fg,g:0});
+   T('LONGER',dc+Math.cos(-Math.PI/6)*104,dy+Math.sin(-Math.PI/6)*86,{size:15,w:700,c:C.fg,g:0});
+   if(t<8.5)T('?',dc,dy-22,{size:30,f:'m',w:400,c:C.amber,al:blink(t)});
+   else{const a=Math.PI*1.5+(Math.PI*7/6-Math.PI*1.5)*eo((t-8.5)/.8);arrow(dc,dy,dc+Math.cos(a)*(dr-10),dy+Math.sin(a)*(dr-10),C.cyan,{lw:4});dot(dc,dy,5,C.cyan)}
+   if(t>9.6)T('GUESS: SHORTER',540,708,{size:20,f:'m',w:400,a:'right',c:C.cyan});
+  }
+ }else{
+  const tc=t-12,th=om*tc;
+  circ(300,460,60,C.ghost,{lw:1,al:.35,g:0,dash:[3,6]});circ(300,400,120,C.cyan,{lw:1,al:.3,g:0,dash:[3,6]});
+  const flash=tc>=3&&((tc%3)<.9);
+  L(Px,Py-16,Px,Py+16,flash?C.green:C.dim,3,1,flash?16:0);T('START',Px,Py+30,{size:12,f:'b',w:700,c:flash?C.green:C.dim,g:0});
+  charge(300,460,60,th,C.ghost,30,22,C.ghost,{size:7});
+  const[fx,fy]=charge(300,400,120,th,C.cyan,60,44);
+  T('2v',fx+Math.cos(th)*72,fy-Math.sin(th)*72,{size:18,c:C.cyan,w:700});
+  T('GHOST v',60,128,{size:20,f:'m',w:400,a:'left',c:C.ghost,g:0});T((tc%3).toFixed(1)+' s',60,152,{size:26,f:'m',w:400,a:'left',c:C.ghost,g:0});
+  T('NEW v ×2',540,128,{size:20,f:'m',w:400,a:'right',c:C.cyan});T((tc%3).toFixed(1)+' s',540,152,{size:26,f:'m',w:400,a:'right',c:C.cyan});
+  if(tc>=3)T('SAME LAP TIME!',300,206,{size:34,w:700,c:C.green,g:flash?22:10});
+  if(t>=22){L(300,400,300,Py,C.mag,2,1,6,[4,5]);T('2r',282,430,{size:16,c:C.mag,w:700});T('r',318,490,{size:16,c:C.mag,w:700})}
+  board();
+  if(t<22){
+   if(tc<3){T('GUESS: SHORTER',300,616,{size:22,f:'m',w:400,c:C.cyan});T('Watch both laps…',300,654,{size:18,f:'b',w:400,c:C.dim,g:0})}
+   else{T('Not quite. The lap time stays the SAME.',300,618,{size:20,w:700,c:C.amber});T("Interesting! Let's see why.",300,656,{size:18,f:'b',w:400,c:C.fg,g:0})}
+  }else{
+   const ln=[['radius ×2  →  distance ×2',C.mag,22.2],['speed ×2',C.cyan,23.2],['time = ×2 ÷ ×2 = ×1',C.fg,24.2],['T = 2πm/qB   (no v anywhere!)',C.green,25.4]];
+   ln.forEach(([s,c,st],i)=>T(s,300,602+i*34,{size:i===3?21:19,w:700,c,al:Wn(t,st,.5),g:i===3?10:4}));
+  }
+ }
+}},
+{name:"WHO'S RIGHT?",dur:13,caps:[[0,"Next, a 'Who's right?' card: two explanations, and one holds a common mistake."],[4.6,"Students judge ideas, not people. The tempting mistake gets a friendly explanation."],[9,"And at the end of the level, a twist: Ernest was real."]],
+draw(t){
+ T("WHO'S RIGHT?",300,96,{size:34,w:700,c:C.amber});
+ const picked=t>5,ar=Wn(t,.4,.5),er=Wn(t,1.2,.5);
+ R(50,140,500,180,picked?C.amber:C.dim,{fill:hexA(C.cyan,.03),al:ar,g:picked?10:0});
+ T('ARTHUR',76,172,{size:26,f:'m',w:400,a:'left',c:C.fg,al:ar,g:0});
+ wrapT('"Faster always means a shorter lap. Double the speed, and the lap takes half the time."',76,212,450,25,{size:18,a:'left',c:C.fg,al:ar,g:0});
+ if(t>6.4)wrapT('Tempting: true for a car on a fixed track. Here the track grows.',76,286,450,22,{size:15,a:'left',c:C.amber,al:Wn(t,6.4,.5),g:0,w:700});
+ R(50,340,500,170,picked?C.green:C.dim,{fill:hexA(C.cyan,.03),al:er,g:picked?14:0,lw:picked?3:2});
+ T('ERNEST',76,372,{size:26,f:'m',w:400,a:'left',c:C.fg,al:er,g:0});
+ wrapT('"Double the speed and the circle doubles too. Twice the distance at twice the speed takes the same time."',76,412,450,25,{size:18,a:'left',c:C.fg,al:er,g:0});
+ if(picked){T('RIGHT',528,372,{size:24,f:'m',w:400,a:'right',c:C.green});const rp=clamp((t-5)/.8);if(rp<1)circ(470,440,10+60*rp,C.green,{lw:3,al:1-rp})}
+ else if(t>3.6){circ(470,440,14,C.fg,{lw:2,al:.7,g:6})}
+ const d=eo((t-9)/.6);if(d>0){const y=760-(760-534)*d;R(50,y,500,186,C.mag,{fill:'rgba(14,8,22,.96)',g:16,lw:2.5});T('DISCOVERY',76,y+30,{size:26,f:'m',w:400,a:'left',c:C.mag});wrapT('Ernest was real. Ernest Lawrence used this exact idea to build the cyclotron in the early 1930s, and won the 1939 Nobel Prize in Physics.',76,y+68,450,24,{size:17,a:'left',c:C.fg,g:0})}
+}},
+{name:'THE PSYCHOLOGY',dur:17,caps:[[0,"Learning science says what to teach. Psychology makes students want to come back."],[4,"Curiosity holds attention. Anxiety eats working memory, so mistakes must feel safe."],[8,"Confident wrong guesses, once corrected, are remembered best. That's the hypercorrection effect, and our levels are built on it."],[12.5,"And we never trap attention. Success means understanding, not screen time."]],
+draw(t){
+ T('THE PSYCHOLOGY',300,78,{size:30,w:700,c:C.cyan});
+ T('why students want to come back',300,110,{size:16,f:'b',w:400,c:C.dim,g:0});
+ const tiles=[['ATTENTION','Every level opens with a question it answers only at the end.'],['EMOTION',"Mistakes get an orange 'Not quite'. Anxiety eats working memory."],['MOTIVATION','Stars reward understanding, never time spent or taps.'],['SELF-BELIEF','Early wins, then a steady climb. Success builds confidence.'],['SURPRISE','A confident wrong guess, once corrected, sticks best.'],['HABIT','5-minute levels are easy to start. A reminder is the cue.'],['ENDINGS','Every level ends on a high: the puzzle solved.'],['TOGETHER','Argue ideas with friends. Judge ideas, not people.']];
+ tiles.forEach(([h,b],i)=>{const x=i%2?307:38,y=138+Math.floor(i/2)*120,lit=t>=1+i*1.3,a=lit?1:.22,pop=Wn(t,1+i*1.3,.4);
+  R(x,y,255,108,lit?C.cyan:C.dim,{fill:hexA(C.cyan,lit?.06:.02),g:lit?6+10*(1-pop):0,lw:1.8});
+  T(h,x+16,y+24,{size:24,f:'m',w:400,a:'left',c:lit?C.amber:C.dim,al:lit?1:.6,g:lit?6:0});
+  wrapT(b,x+16,y+54,226,19,{size:14.5,a:'left',c:C.fg,al:a,g:0})});
+ const fa=Wn(t,12.5,.6);
+ T('NO GUILT STREAKS · NO LOOT BOXES',300,628,{size:22,f:'m',w:400,c:C.green,al:fa});T('NO DARK PATTERNS',300,656,{size:22,f:'m',w:400,c:C.green,al:fa});
+ T('Success = understanding, not screen time.',300,696,{size:18,f:'b',w:700,c:C.fg,al:Wn(t,13.3,.6),g:0});
+}},
+{name:'BUILT ON SCIENCE',dur:13,caps:[[0,"Every screen is built on decades of research, not opinions or trends."],[5,"If we can't name the principle behind a decision, we don't build it."],[8.8,"Then we test it with real students, and keep only what works."]],
+draw(t){
+ T('BUILT ON LEARNING SCIENCE',300,84,{size:27,w:700,c:C.amber});
+ const names=['Retrieval practice','Spacing effect','Interleaving','Generation effect','Elaboration','Levels of processing','Conceptual change','Predict–observe–explain','Concreteness fading','Schema building','Analogical mapping','Cognitive load theory','Segmenting','Signalling','Dual coding','Multimedia principles','Claim–evidence–reasoning','Self-explanation','Contrasting cases','Metacognition','Self-determination','Curiosity gap','Goal gradient','Error-friendly framing','Peer instruction','Psychological safety','Direct manipulation','Doherty threshold','Mastery learning','Expertise reversal','Hypercorrection effect','Peak–end rule'];
+ const ca=1-Wn(t,6,.7);
+ if(ca>0)names.forEach((s,i)=>{const x=[105,300,495][i%3],y=760+Math.floor(i/3)*58-166*t+(i%3)*18;if(y<110||y>760)return;const a=clamp((y-120)/100)*clamp((760-y)/60)*ca;T(s,x,y,{size:14,w:600,c:[C.cyan,C.fg,C.green][i%3],al:a,g:4})});
+ const pts=[[300,150],[452,205],[440,385],[300,505],[160,385],[148,205],[300,150]];
+ const p=eio((t-5.6)/1.4);
+ if(p>0){let Ltot=0;const seg=[];for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);Ltot+=l}
+  ctx.save();glow(C.cyan,16);ctx.strokeStyle=C.cyan;ctx.lineWidth=4;ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(...pts[0]);let left=Ltot*p;for(let i=1;i<pts.length&&left>0;i++){const f=Math.min(1,left/seg[i-1]);ctx.lineTo(pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f);left-=seg[i-1]}ctx.stroke();ctx.restore();
+  const ta=Wn(t,6.6,.6);['EVERY','DECISION','NAMES ITS','PRINCIPLE'].forEach((s,i)=>T(s,300,262+i*42,{size:i===1||i===3?34:26,w:700,c:i===3?C.cyan:C.fg,al:ta,g:i===3?14:4}))}
+ [['Every lesson passes the checklist',8.8],['Every animation is real physics',9.6],['Tested with real students',10.4]].forEach(([s,st],i)=>{const a=Wn(t,st,.4);if(a<=0)return;tick(150,568+i*48,C.green,9,a);T(s,174,568+i*48,{size:19,f:'b',w:700,a:'left',c:C.fg,al:a,g:0})});
+}},
+{name:'FAST & EFFICIENT',dur:13,caps:[[0,"It's fast and efficient too. That means less wasted time, not less thinking."],[2.5,"Memorising costs you again and again: forget, relearn, forget, cram."],[6,"Understand it once, then a one-minute recall now and then. The relearning disappears."],[9,"Short levels, pictures instead of pages, instant feedback, and you skip what you already know."]],
+draw(t){
+ T('FAST & EFFICIENT',300,88,{size:30,w:700,c:C.cyan});
+ T('less wasted time, not less thinking',300,120,{size:16,f:'b',w:400,c:C.dim,g:0});
+ const px=60+480*eio(clamp((t-1)/7));
+ T('MEMORISE',60,206,{size:22,f:'m',w:400,a:'left',c:C.amber});
+ T('UNDERSTAND',60,356,{size:22,f:'m',w:400,a:'left',c:C.cyan});
+ L(60,252,540,252,C.grid,2,1,0);L(60,402,540,402,C.grid,2,1,0);
+ ctx.save();ctx.beginPath();ctx.rect(0,140,px,320);ctx.clip();
+ [[0,80,'LEARN'],[125,200,'RELEARN'],[245,320,'RELEARN'],[365,480,'CRAM']].forEach(([a,b,s])=>{R(60+a,228,b-a,48,C.amber,{fill:hexA(C.amber,.35),g:8,r:6});T(s,60+(a+b)/2,252,{size:13,w:700,c:C.fg,g:0})});
+ [[80,125],[200,245],[320,365]].forEach(([a,b])=>T('forget',60+(a+b)/2,290,{size:12,f:'b',w:400,c:C.dim,g:0}));
+ R(60,378,100,48,C.cyan,{fill:hexA(C.cyan,.3),g:10,r:6});T('LEARN ONCE',110,402,{size:13,w:700,c:C.fg,g:0});
+ [190,290,430].forEach(x=>{R(60+x,384,9,36,C.green,{fill:hexA(C.green,.7),g:10,lw:0,r:3});T('recall',64+x,440,{size:12,f:'b',w:700,c:C.green,g:0})});
+ ctx.restore();
+ if(t>1&&t<8.2)L(px,196,px,456,C.fg,1.5,.6,6);
+ arrow(250,486,60,486,C.dim,{lw:1.5,g:0,hs:7});arrow(350,486,540,486,C.dim,{lw:1.5,g:0,hs:7});T('one school term',300,486,{size:13,f:'b',w:400,c:C.dim,g:0});
+ [['5-MINUTE LEVELS',165,568],['PICTURES, NOT PAGES',435,568],['INSTANT FEEDBACK',165,632],['SKIP WHAT YOU KNOW',435,632]].forEach(([s,x,y],i)=>{const a=Wn(t,9+i*.35,.4);pill(x,y,252,48,C.green,s,{al:a,sc:.7+.3*a,size:15})});
+ T('Illustration',300,700,{size:12,f:'b',w:400,c:C.dim,g:0});
+}},
+{name:'LEARNING TOGETHER',dur:13,caps:[[0,"In class, the tutor opens a session. Students join with a code, no login."],[3.5,"Everyone votes on a prediction, anonymously, and the class sees the split."],[6.5,"Two minutes to convince a neighbour. Then vote again."],[10,"Arguing with a friend builds logic better than any lecture. It's called peer instruction, and it works."]],
+draw(t){
+ T('LEARNING TOGETHER',300,78,{size:30,w:700,c:C.amber});
+ R(60,108,480,280,C.cyan,{fill:'rgba(8,16,26,.9)',g:10});
+ T('ROOM',90,148,{size:22,f:'m',w:400,a:'left',c:C.dim,g:0});
+ T('QVBX',90,206,{size:76,f:'m',w:400,a:'left',c:C.cyan,g:14});
+ for(let i=0;i<9;i++)for(let j=0;j<9;j++){const corner=(i<3&&j<3)||(i>5&&j<3)||(i<3&&j>5);if(corner||rnd(i*9+j)>.5)R(408+i*12,130+j*12,11,11,null,{fill:C.fg,lw:0,r:1})}
+ let status;
+ if(t<3.5)status='Students joining… '+Math.min(24,Math.floor(t*8))+' / 24';
+ else if(t<6.5)status='VOTE 1:  v ×2  →  lap time?';
+ else if(t<9.5){const s=Math.max(0,120-Math.floor((t-6.5)/3*120));status='CONVINCE YOUR NEIGHBOUR  '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+ else status='VOTE 2:  same question';
+ T(status,300,330,{size:22,f:'m',w:400,c:t>=6.5&&t<9.5?C.amber:C.fg});
+ for(let i=0;i<6;i++){const a=Wn(t,.4+i*.35,.3);if(a<=0)continue;const x=95+i*78;R(x,404+(1-a)*14,40,66,C.dim,{al:a,g:0,lw:2,r:7});R(x+5,410+(1-a)*14,30,46,null,{fill:hexA(C.cyan,.35),lw:0,al:a,r:3})}
+ const v1=[64,24,12],v2=[16,78,6],labs=['SHORTER','SAME','LONGER'];
+ const k=eio((t-9.5)/1),show=Wn(t,3.6,.8);
+ labs.forEach((s,i)=>{const x=[170,300,430][i],base=690,val=(v1[i]+(v2[i]-v1[i])*k)*show,h=1.4*val;
+  if(t>9.5)R(x-40,base-1.4*v1[i],80,1.4*v1[i],C.dim,{dash:[4,4],g:0,lw:1.5,r:4});
+  R(x-40,base-h,80,h,i===1?C.green:C.cyan,{fill:hexA(i===1?C.green:C.cyan,.45),g:10,r:4});
+  if(show>0)T(Math.round(val)+'%',x,base-h-18,{size:26,f:'m',w:400,c:C.fg,al:show});
+  T(s,x,712,{size:14,w:700,c:C.dim,g:0})});
+ T('example class',560,738,{size:12,f:'b',w:400,a:'right',c:C.dim,g:0});
+}},
+{name:'ALREADY RUNNING',dur:12,caps:[[0,"This isn't just an idea. The Lorentz Arcade already runs on phones."],[4,"Two levels are playable end to end, and a physics tutor uses it before his sessions."],[8,"Next: spaced recall and tutor mode. Then more physics, maths and biology. That's where you come in."]],
+draw(t){
+ T('ALREADY RUNNING',300,80,{size:30,w:700,c:C.green});
+ T('Lorentz Arcade · HSC Physics Module 6',300,112,{size:16,f:'b',w:400,c:C.dim,g:0});
+ const rows=[['C1','Why a circle?','IN DESIGN',C.amber],['C2','How big is the circle?','PLAYABLE',C.green],['C3','How long is one lap?','PLAYABLE',C.green],['SANDBOX','Free play, grows each level','BUILT',C.green],['NEXT','Spaced recall','NEXT',C.cyan],['NEXT','Tutor-session mode','NEXT',C.cyan],['LATER','More physics chapters','LATER',C.dim],['LATER','Maths','LATER',C.dim],['LATER','Biology','LATER',C.dim]];
+ const y0=162,st=64;L(84,y0,84,y0+st*8,C.grid,3,1,0);
+ rows.forEach(([tag,name,stat,c],i)=>{const y=y0+i*st,a=Wn(t,.5+i*.55,.4),lit=a>.5;
+  circ(84,y,12,c,{lw:2.5,fill:lit&&c!==C.dim?hexA(c,.6):C.bg,g:lit?12:0,al:Math.max(.3,a)});
+  T(tag,112,y-11,{size:18,f:'m',w:400,a:'left',c:C.dim,g:0,al:Math.max(.3,a)});
+  T(name,112,y+12,{size:18,w:600,a:'left',c:c===C.dim?C.dim:C.fg,g:0,al:Math.max(.3,a)});
+  T(stat,560,y,{size:22,f:'m',w:400,a:'right',c,al:a})});
+}},
+{name:'YOUR CHALLENGE',dur:24,caps:[[0,"Now your part: maths, rethought with AI."],[3,"A real question mixes many skills. Why grind through the ones you've already mastered?"],[6,"Mastered steps fold away. Your effort goes to what's new, and you still see the whole chain of logic."],[12.5,"Start with the hardest topics that both the HSC and the HKDSE teach. One lesson, two countries."],[18.5,"Induction is just falling dominoes. Every scary topic has simple logic underneath. Let's find it together."]],
+draw(t){
+ const a1=1-Wn(t,11.4,.6),a2=Wn(t,12,.7);
+ if(a1>0){ctx.save();ctx.globalAlpha*=a1;
+  T('YOUR CHALLENGE: MATHS',300,76,{size:28,w:700,c:C.amber});
+  R(40,104,520,84,C.dim,{fill:hexA(C.cyan,.03),g:0,lw:1.5});
+  wrapT('A ball is thrown straight up at 20 m/s. When does it land? (g = 10 m/s²)',60,132,480,26,{size:18,a:'left',c:C.fg,g:0,w:700});
+  const steps=[["READ IT: SKETCH, LIST WHAT'S KNOWN",'t'],['PICK THE IDEA:  s = ut + ½at²','t'],['SUBSTITUTE THE NUMBERS','m'],['SIMPLIFY','m'],['SOLVE:  0 = 20t − 5t²','n'],['DOES IT MAKE SENSE?','c']];
+  let y=206;const f=eo((t-5)/1.2);
+  steps.forEach(([lab,k],i)=>{const a=Wn(t,.6+i*.35,.4);if(a<=0){y+=64;return}const h=k==='m'?54-26*f:54;const col=k==='m'?(f>.5?C.green:C.dim):k==='n'?C.amber:C.cyan;const hot=k==='n'&&t>7;
+   ctx.save();ctx.globalAlpha*=a*(k==='m'?1-.3*f:1);
+   R(40,y,520,h,col,{fill:hexA(col,.07),g:hot?(RM?14:12+8*Math.sin(t*4)):5,lw:hot?3:1.5});
+   if(k==='m'&&f>.5){tick(62,y+h/2,C.green,7);T('DONE FOR YOU: '+lab,80,y+h/2,{size:13,a:'left',c:C.green,w:700,g:0})}
+   else{T(lab,58,y+h/2,{size:16,a:'left',c:C.fg,w:600,g:0});const tag=k==='m'?'MASTERED':k==='n'?(hot?'YOUR STEP':'NEW'):'THINK';T(tag,544,y+h/2,{size:20,f:'m',w:400,a:'right',c:col})}
+   ctx.restore();y+=h+10});
+  const ra=Wn(t,8.6,.5);T('t = 4 s.  2 s up, 2 s down. Makes sense.',300,y+24,{size:19,w:700,c:C.green,al:ra});
+  wrapT("The AI handles what you've proven you can do. The thinking stays yours.",300,y+64,480,22,{size:16,c:C.dim,al:Wn(t,9.4,.5),g:0});
+  ctx.restore()}
+ if(a2>0){ctx.save();ctx.globalAlpha*=a2;const tt=t-12;
+  T('START WITH THE HARDEST',300,76,{size:28,w:700,c:C.amber});
+  circ(250,190,82,C.cyan,{lw:2.5,fill:hexA(C.cyan,.06),g:10});circ(350,190,82,C.mag,{lw:2.5,fill:hexA(C.mag,.06),g:10});
+  T('HSC',212,190,{size:24,f:'m',w:400,c:C.cyan});T('HKDSE',394,190,{size:24,f:'m',w:400,c:C.mag});T('∩',300,190,{size:30,w:700,c:C.fg});
+  T('Australia',212,214,{size:12,f:'b',w:400,c:C.dim,g:0});T('Hong Kong',394,214,{size:12,f:'b',w:400,c:C.dim,g:0});
+  const topics=['INDUCTION','VECTORS','COMPOUND ANGLES','CALCULUS APPLICATIONS','BINOMIAL THEOREM','LOGARITHMS'];
+  topics.forEach((s,i)=>{const a=Wn(tt,1+i*.4,.4);const x=i%2?316:58,y=318+Math.floor(i/2)*48;R(x,y-7,14,14,C.amber,{fill:hexA(C.amber,.5),al:a,g:8,r:3});T(s,x+24,y,{size:17,w:700,a:'left',c:C.fg,al:a,g:0})});
+  T('One lesson, two countries.',300,476,{size:16,f:'b',w:400,c:C.dim,al:Wn(tt,3.6,.5),g:0});
+  const da=Wn(tt,6.2,.5);
+  T('INDUCTION = FALLING DOMINOES',300,536,{size:21,w:700,c:C.green,al:da});
+  const base=660,w=12,h=70,sp=46,n=10,rest=Math.acos(w/sp);
+  for(let i=0;i<n;i++){const x=80+i*sp,s0=6.8+i*.22,fall=eio((tt-s0)/.32),ang=(i===n-1?Math.PI/2:rest)*fall;
+   ctx.save();ctx.globalAlpha*=da;ctx.translate(x+w,base);ctx.rotate(ang);R(-w,-h,w,h,i===0?C.amber:C.cyan,{fill:hexA(i===0?C.amber:C.cyan,.35),g:8,r:2});ctx.restore()}
+  T('n = 1',86,base-h-16,{size:18,f:'m',w:400,c:C.amber,al:da});
+  wrapT('True for the first, and each one knocks over the next, so true for all.',300,700,500,22,{size:16,c:C.fg,al:Wn(tt,9.3,.5),g:0});
+  ctx.restore()}
+}},
+{name:'PLAYER 2',dur:14,caps:[[0,"Fun, easy and effortless to use. Logical and deep in what it builds. Backed by real science."],[5,"Made for every student who was ever told to just memorise it."],[9,"I'd love you to build it with me. Player 2, press start."]],
+draw(t){field(.1);
+ const joined=joinedAt!=null,jt=joined?t-joinedAt:0;
+ if(!joined){T('PLAYER 2',300,214,{size:72,w:700,c:C.cyan,g:20,al:RM?1:.75+.25*Math.sin(t*3)});T('READY?',300,292,{size:38,w:600,c:C.fg})}
+ else{const a=eo(jt/.4);T('PLAYER 2 JOINED!',300,214,{size:50,w:700,c:C.green,g:22,al:a});T("LET'S BUILD IT.",300,292,{size:34,w:600,c:C.fg,al:a})}
+ T('FUN · EASY · EFFORTLESS · FAST',300,404,{size:24,f:'m',w:400,c:C.amber,al:Wn(t,1.4,.6)});
+ T('LOGICAL · DEEP · BUILT ON SCIENCE',300,440,{size:24,f:'m',w:400,c:C.green,al:Wn(t,2.8,.6)});
+ const ba=Wn(t,6,.6);
+ R(150,556,300,74,joined?C.green:C.amber,{fill:hexA(joined?C.green:C.amber,joined?.25:.18+(RM?0:.1*Math.sin(t*5))),g:16,lw:3,al:ba,r:12});
+ T(joined?'WELCOME, PARTNER':'PRESS START TO JOIN',300,594,{size:22,w:700,c:joined?C.green:C.amber,al:ba*(joined?1:blink(t))});
+ if(!joined&&t>6.5)T('tap the button',300,654,{size:14,f:'b',w:400,c:C.dim,g:0});
+ if(joined&&jt<3.2){const cols=[C.cyan,C.amber,C.mag,C.green];for(let i=0;i<70;i++){const a=i*2.39996,sp=140+(i*37%180);const x=300+Math.cos(a)*sp*jt,y=594+Math.sin(a)*sp*jt+170*jt*jt;dot(x,y,3+(i%3),cols[i%4],10*(1-jt/3.2))}}
+}}
+];
+let joinedAt=null;
+
+
+/* ---------- sound (made live with Web Audio, starts on the viewer's tap) ---------- */
+let ac=null,master=null,musicGain=null,soundOn=false;
+function initAudio(){if(ac)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=new A();master=ac.createGain();master.gain.value=.7;master.connect(ac.destination);musicGain=ac.createGain();musicGain.gain.value=1;musicGain.connect(master)}
+function tone(f,t0,d,{type='square',g=.2,f2=null,a=.005,out=null}={}){const o=ac.createOscillator(),v=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);v.gain.setValueAtTime(0,t0);v.gain.linearRampToValueAtTime(g,t0+a);v.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(v).connect(out||master);o.start(t0);o.stop(t0+d+.05)}
+function noise(t0,d,{g=.3,f0=400,f1=3000,q=1,type='bandpass',out=null}={}){const n=ac.createBufferSource(),b=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*d)),ac.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;n.buffer=b;const fl=ac.createBiquadFilter();fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f0,t0);fl.frequency.exponentialRampToValueAtTime(f1,t0+d);const v=ac.createGain();v.gain.setValueAtTime(0,t0);v.gain.linearRampToValueAtTime(g,t0+d*.3);v.gain.exponentialRampToValueAtTime(.0001,t0+d);n.connect(fl).connect(v).connect(out||master);n.start(t0)}
+const SFXLIB={
+ blip(t){tone(660,t,.09,{g:.12,f2:1320})},
+ tick(t){tone(2200,t,.025,{g:.06})},
+ whoosh(t){noise(t,.7,{g:.3,f0:300,f1:2500,q:2});tone(220,t,.6,{type:'sine',g:.07,f2:440})},
+ stamp(t){tone(150,t,.35,{type:'sine',g:.55,f2:45});noise(t,.18,{g:.35,f0:1200,f1:200,type:'lowpass',q:.7})},
+ notquite(t){tone(523.25,t,.22,{type:'triangle',g:.2});tone(440,t+.16,.35,{type:'triangle',g:.18})},
+ ding(t){[1046.5,1568,2093].forEach((f,i)=>tone(f,t+i*.07,1.3,{type:'sine',g:.16/(i+1)+.04}));tone(523.25,t,.4,{g:.045})},
+ dominoes(t){for(let i=0;i<10;i++){const tt=t+i*.22;tone(900-i*30,tt,.05,{g:.09});noise(tt,.06,{g:.22,f0:2500,f1:1500,q:3})}},
+ fanfare(t){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,t+i*.11,.18,{g:.12}));[523.25,659.25,783.99,1046.5].forEach(f=>tone(f,t+.5,.9,{g:.06}));for(let i=0;i<8;i++)tone(2000+Math.random()*2000,t+.55+i*.06,.06,{type:'sine',g:.045})}
+};
+function sfx(name){if(!soundOn||!ac||!SFXLIB[name])return;try{SFXLIB[name](ac.currentTime+.01)}catch(e){}}
+/* quiet chiptune loop */
+let mStep=0,mNext=0;const prog=[[261.63,329.63,392],[220,261.63,329.63],[174.61,220,261.63],[196,246.94,293.66]];
+function musicTick(){if(!soundOn||!ac||!playing){mNext=0;return}const spb=60/100/2;if(mNext<ac.currentTime)mNext=ac.currentTime+.05;while(mNext<ac.currentTime+.25){const ch=prog[Math.floor(mStep/8)%4],i=mStep%8;tone(ch[[0,1,2,1,0,1,2,1][i]]*2,mNext,spb*.9,{g:.028,a:.01,out:musicGain});if(i%4===0)tone(ch[0]/2,mNext,spb*3.6,{type:'triangle',g:.1,a:.02,out:musicGain});if(i%2===1)noise(mNext,.04,{g:.022,f0:6000,f1:8000,type:'highpass',out:musicGain});mNext+=spb;mStep++}}
+setInterval(()=>{try{musicTick()}catch(e){}},60);
+const seq=(s,n,step,name)=>Array.from({length:n},(_,i)=>[s+i*step,name]);
+const SFX=[
+ [[.1,'whoosh'],[.35,'blip'],[.95,'blip'],[2.6,'blip']],
+ [...seq(.5,20,.5,'tick'),[10.8,'stamp']],
+ [...seq(.4,4,.9,'blip'),[6.4,'blip'],[7.4,'notquite']],
+ [...seq(1,6,.45,'blip'),[5,'whoosh'],[5.8,'blip'],[6.4,'blip']],
+ [[.5,'blip'],[3,'blip'],[3.6,'blip'],...seq(6.4,4,.45,'blip'),[9.4,'blip'],[11.5,'notquite'],[12.9,'ding'],...seq(14,4,.5,'blip')],
+ [[1.5,'whoosh'],[6,'whoosh'],[7.8,'blip'],[8.15,'blip'],[8.5,'blip'],[11,'blip']],
+ [...seq(1,6,1.6,'blip')],
+ [[.05,'whoosh'],...seq(8.5,6,.14,'tick'),[9.6,'blip'],[12,'whoosh'],[15,'ding'],[15.7,'notquite'],[22.2,'blip'],[23.2,'blip'],[24.2,'blip'],[25.4,'ding']],
+ [[.4,'blip'],[1.2,'blip'],[5,'ding'],[9,'whoosh']],
+ [...seq(1,8,1.3,'blip'),[12.5,'ding']],
+ [[5.6,'whoosh'],[6.6,'blip'],[8.8,'blip'],[9.6,'blip'],[10.4,'ding']],
+ [[1,'whoosh'],...seq(9,4,.35,'blip')],
+ [...seq(.4,6,.35,'blip'),[3.6,'blip'],...seq(6.5,6,.5,'tick'),[9.5,'whoosh'],[10.5,'ding']],
+ [...seq(.5,9,.55,'blip')],
+ [...seq(.6,6,.35,'blip'),[5,'whoosh'],[7,'blip'],[8.6,'ding'],[12,'whoosh'],...seq(13,6,.4,'blip'),[18.8,'dominoes']],
+ [[1.4,'blip'],[2.8,'blip'],[6,'blip']]
+];
+let prevSt=-1;
+/* ---------- player ---------- */
+const durs=SC.map(s=>s.dur),total=durs.reduce((a,b)=>a+b,0);
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+let si=0,st=0,playing=true,last=performance.now(),capIdx=-1;
+const capEl=document.getElementById('cap'),pipsEl=document.getElementById('pips'),clockEl=document.getElementById('clock'),pausedEl=document.getElementById('paused');
+SC.forEach((s,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',`Scene ${i+1}: ${s.name}`);b.innerHTML='<span><i></i></span>';b.onclick=()=>go(i);pipsEl.appendChild(b)});
+const fills=[...pipsEl.querySelectorAll('i')];
+document.getElementById('script').innerHTML=SC.map((s,i)=>`<h3>${String(i+1).padStart(2,'0')} ${s.name}</h3>`+s.caps.map(c=>`<p>${c[1]}</p>`).join('')).join('');
+function go(i){si=clamp(i,0,SC.length-1);st=0;capIdx=-1;joinedAt=null;prevSt=-1}
+function setPlaying(p){playing=p;pausedEl.hidden=p;document.getElementById('playLabel').textContent=p?'PAUSE':'PLAY';document.getElementById('play').setAttribute('aria-label',p?'Pause':'Play');document.getElementById('playIcon').innerHTML=p?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M7 4v16l13-8z"/>'}
+const sndBtn=document.getElementById('snd');sndBtn.onclick=e=>{e.stopPropagation();initAudio();if(!ac)return;ac.resume();soundOn=!soundOn;sndBtn.classList.toggle('on',soundOn);sndBtn.classList.remove('off');sndBtn.setAttribute('aria-pressed',soundOn);document.getElementById('sndLabel').textContent=soundOn?'SOUND ON':'MUTED';if(soundOn)sfx('blip')};
+document.getElementById('play').onclick=()=>setPlaying(!playing);
+document.getElementById('next').onclick=()=>{if(si<SC.length-1)go(si+1)};
+document.getElementById('prev').onclick=()=>{go(st>1.5?si:si-1)};
+document.getElementById('replay').onclick=()=>{go(0);setPlaying(true)};
+document.getElementById('screen').addEventListener('click',e=>{const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
+ if(si===SC.length-1&&st>6&&x>140&&x<460&&y>546&&y<640){if(joinedAt==null){joinedAt=st;sfx('fanfare')}if(!playing)setPlaying(true);return}
+ setPlaying(!playing)});
+addEventListener('keydown',e=>{if(e.target.closest('button,summary'))return;if(e.code==='Space'){e.preventDefault();setPlaying(!playing)}if(e.key==='ArrowRight'&&si<SC.length-1)go(si+1);if(e.key==='ArrowLeft')go(si-1)});
+
+function frame(now){
+ const dt=Math.min(.1,(now-last)/1000);last=now;
+ if(playing){st+=dt;if(st>=SC[si].dur&&si<SC.length-1){si++;st=0;capIdx=-1;joinedAt=null;prevSt=-1}}
+ if(playing&&soundOn)for(const e of SFX[si]||[])if(e[0]>prevSt&&e[0]<=st)sfx(e[1]);
+ prevSt=st;
+ const s=SC[si];
+ ctx.setTransform(S,0,0,S,0,0);ctx.globalAlpha=1;ctx.shadowBlur=0;
+ ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);
+ T(String(si+1).padStart(2,'0')+' / '+SC.length+'  '+s.name,22,28,{size:20,f:'m',w:400,a:'left',c:C.dim,g:0});
+ ctx.save();ctx.globalAlpha=eo(st/.35);try{s.draw(st)}catch(err){console.error(err)}ctx.restore();
+ // caption
+ let ci=0;s.caps.forEach((c,i)=>{if(st>=c[0])ci=i});
+ if(ci!==capIdx){capIdx=ci;capEl.classList.add('fade');const txt=s.caps[ci][1];setTimeout(()=>{capEl.textContent=txt;capEl.classList.remove('fade')},120)}
+ fills.forEach((f,i)=>{f.style.width=(i<si?100:i>si?0:clamp(st/SC[i].dur)*100)+'%'});
+ const el=durs.slice(0,si).reduce((a,b)=>a+b,0)+Math.min(st,s.dur);
+ clockEl.textContent=fmt(el)+'/'+fmt(total);
+ requestAnimationFrame(frame);
+}
+capEl.textContent=SC[0].caps[0][1];
+requestAnimationFrame(frame);
+})();
+</script>
