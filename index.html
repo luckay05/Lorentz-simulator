@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Lorentz"><meta name="theme-color" content="#0A0716"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Lorentz Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -446,6 +446,20 @@ b.o{color:var(--f)} b.g{color:var(--b)} b.bl{color:var(--v)} b.a{color:var(--amb
 .lcard .lgl{flex:none;font-size:6px;color:var(--muted);text-align:right;line-height:1.6}
 #monL1 .mi.tight{gap:4px;padding:3px 6px}
 #monL1 .mi.tight .l1reel button{height:18px}
+
+/* ---------- v15 · phone layout ---------- */
+html.swipe,html.swipe body{height:auto;min-height:100%}
+html.swipe body{overflow-x:hidden;overflow-y:auto}
+html.swipe .app{position:sticky;top:0;height:100vh;height:100dvh}
+html.swipe #swipePad{height:110px}
+.screen,#cv{touch-action:none}
+.l1st .l1svg.fit{height:auto;inset:auto 0 auto 0}
+.cap.hid{visibility:hidden}
+#swipeHint{margin-left:auto;padding:4px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--cyan);color:var(--cyan);font:400 6px var(--pix);letter-spacing:1px;white-space:nowrap;animation:swh 1.6s ease-in-out infinite}
+html.hinting #bcode{display:none}
+@keyframes swh{50%{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){#swipeHint{animation:none}}
+@media (max-height:760px){.deck{height:200px}}
 </style>
 
 <div class="app">
@@ -1987,7 +2001,7 @@ function rr2(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+
 function bd(kind,col,l,r,body){board(kind,col,`<small><span>${l}</span><span>${r}</span></small>${body}`);}
 function dk(html,cls=''){$('#monL1').innerHTML=`<div class="mi ${cls}">${html}</div>`;}
 const ro=(lab,val,col,sz=34)=>`<span class="ro"><span class="px">${lab}</span><span class="led" style="font-size:${sz}px;color:${col}">${val}</span></span>`;
-function stage(svg,extra=''){const st=$('#l1st');st.innerHTML=(svg?`<svg class="l1svg" viewBox="0 0 340 548" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${svg}</svg>`:'')+extra;st.hidden=false;}
+function stage(svg,extra='',vb){const st=$('#l1st');st.innerHTML=(svg?`<svg class="l1svg${vb?' fit':''}" viewBox="${vb||'0 0 340 548'}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${svg}</svg>`:'')+extra;st.hidden=false;}
 function baseL1(o={}){base({vec:{}});deckMode('l1');const st=$('#l1st');st.innerHTML='';st.hidden=true;$('#marq').classList.remove('warm');$('#mtail').hidden=true;$('#offNote').hidden=true;$('#hudLv').textContent='L1';L={t:0,...o};}
 const DIRG=['→','↘','↓','↙','←','↖','↑','↗'],DIRN=['right','down-right','down','down-left','left','up-left','up','up-right'];
 const dIdx=a=>Math.round((((a%360)+360)%360)/45)%8;
@@ -2095,11 +2109,11 @@ function vAngle(px,py,len,th,comp){const c=Math.cos(th*D2R),s=Math.sin(th*D2R),e
 /* ---------- the lesson, in screen order ---------- */
 const LV=(id,x)=>Object.assign({id,eng:'l1'},x);
 const L1B=[
- LV('l1hook',{full:true,enter(){baseL1();stage(SV_HOOK,`<div class="l1goals"><span class="px">IN THIS LESSON YOU’LL FIND OUT</span><span><b class="a">1</b> what a magnetic field pushes on</span><span><b class="a">2</b> how strong the push is</span><span><b class="a">3</b> which way it pushes</span></div>`);
+ LV('l1hook',{full:true,enter(){baseL1();stage(SV_HOOK,`<div class="l1goals"><span class="px">IN THIS LESSON YOU’LL FIND OUT</span><span><b class="a">1</b> what a magnetic field pushes on</span><span><b class="a">2</b> how strong the push is</span><span><b class="a">3</b> which way it pushes</span></div>`,'-10 186 360 236');
   bd('info','#7FE0A6','AURORA','WHY ONLY HERE?','<p>The Sun fires charged particles at the <b class="a">whole</b> Earth. So why do auroras glow only near the <b class="g">poles</b>?</p>');
   dk(`<span class="px" style="font-size:6px;color:#5CE1FF;letter-spacing:1px">MAGNETIC FORCE</span><span class="led" style="font:34px/1 var(--led);color:#FF8A4C">F = ?</span><span style="font-size:12px;color:#98A3B5">you’ll fill this in</span>`);
   cap('Keep this question in mind. You’ll answer it at the end.');}}),
- LV('l1fridge',{full:true,enter(){baseL1({bg:'#F3E6CF'});stage(SV_FRIDGE);bd('info','#D8433B','EVERYDAY WORLD','THE FRIDGE','<p style="color:#3A2A14">A magnet pulls a paperclip straight toward it. <b style="color:#B5352E">Magnets pull things toward them.</b></p>');$('#marq').classList.add('warm');
+ LV('l1fridge',{full:true,enter(){baseL1({bg:'#F3E6CF'});stage(SV_FRIDGE,'','24 60 292 420');bd('info','#D8433B','EVERYDAY WORLD','THE FRIDGE','<p style="color:#3A2A14">A magnet pulls a paperclip straight toward it. <b style="color:#B5352E">Magnets pull things toward them.</b></p>');$('#marq').classList.add('warm');
   dk(`<span class="led" style="font:34px/1 var(--led);color:#FF8A4C">F = ?</span>`,'dim');cap('Hold that thought. Soon you’ll test it on a <b class="pu">charge</b> instead of a paperclip.');}}),
  LV('l1meetB',{zone:[145,495],enter(){baseL1();stage(SV_MEETB);bd('info','#4CC27F','MEET THE FIELD','B','<p style="margin-bottom:4px"><b class="g">B</b> = magnetic field. Its strength is measured in <b class="a">tesla (T)</b>.</p><p style="margin-top:0;font-size:14px;font-weight:500">Its direction: the way a compass’s north end points, N → S.</p>');
   dk(`<span class="px" style="font-size:6px;color:#5CE1FF;letter-spacing:1px">FIELD STRENGTH</span><span style="font:30px/1 var(--led)"><b class="g" style="font-style:italic">B</b> <span style="color:#FFD873">0.5 T</span></span><span style="font-size:12px;color:#98A3B5">fridge magnet ≈ 0.005 T · MRI ≈ 3 T</span>`);
@@ -2245,7 +2259,7 @@ const L1B=[
    const f=c.f;if(f&&f.pts.length){ctx.save();ctx.strokeStyle=C.blue;ctx.lineWidth=2.4;ctx.globalAlpha=.55;ctx.beginPath();f.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.restore();chg(f.x,f.y,1,9*(1-clamp(f.z,0,110)/260));}
    else{chg(60,330,1,9);if(c.th!=null){const a=c.th*D2R;arrow(60+Math.cos(a)*10,330-Math.sin(a)*10,Math.cos(a)*40,-Math.sin(a)*40,C.blue,3,true);}else dash(()=>arrow(70,330,40,-30,C.blue,3,false),[4,4]);}}}),
  LV('l1clear',{full:true,next:'MAP ▸',enter(){baseL1();S.phase='play';const best=Math.max(l1Best(),S.stars);store.set(LK.best,String(best));store.set(LK.done,String(Date.now()));burst();
-  stage(SV_EARTH,`<div class="l1cards"><div><span class="px" style="color:#5CE1FF">DISCOVERY</span>Hendrik was Hendrik Lorentz (1895)</div><div><span class="px" style="color:#F2B630">RECALL</span>1 day · 3 days · 1 week</div><div><span class="px" style="color:#7FE0A6">MAP</span>Lesson 2 unlocked</div></div>`);
+  stage(SV_EARTH,`<div class="l1cards"><div><span class="px" style="color:#5CE1FF">DISCOVERY</span>Hendrik was Hendrik Lorentz (1895)</div><div><span class="px" style="color:#F2B630">RECALL</span>1 day · 3 days · 1 week</div><div><span class="px" style="color:#7FE0A6">MAP</span>Lesson 2 unlocked</div></div>`,'0 168 340 318');
   bd('info','#F2B630','LESSON CLEAR',st3(S.stars),'<p style="font-size:13px;font-weight:500">Near the poles the charges move <b class="g">along</b> the field lines: almost no force, so they reach the air and glow. Elsewhere they cut <b class="bl">across</b> and get turned away.</p>');
   dk(`<span style="font:26px/1 var(--led)"><b class="o">F</b> = <b style="color:#B48CFF">q</b><b class="bl">v</b><b class="g">B</b> <span style="color:#FFD873">sin θ</span></span><span style="font-size:12px;color:#98A3B5">only moving charges · sideways · flips for −</span>`);
   cap('Ask your tutor: why is the glow a ring, not a dot? (Lesson 3)');},
@@ -2335,7 +2349,7 @@ L1B.find(b=>b.id==='l1lane').lock=function(){const c=L.ch;if(c.state==='win'){go
 
 /* ---------- engine hooks ---------- */
 function stepL1(dt){L.t+=dt;const b=cur();if(b&&b.step)b.step(dt);}
-function drawL1(dt){if(!W)return;const d=devicePixelRatio||1;ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle=L.bg||'#060A12';ctx.fillRect(0,0,W,H);
+function drawL1(dt){if(!W)return;l1lay();const d=devicePixelRatio||1;ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle=L.bg||'#060A12';ctx.fillRect(0,0,W,H);
  const g=l1g(),b=cur();if(H3&&b&&b.id==='l1palm')hand3Frame(g);if(b&&b.p3)p3Frame(dt);const sv=$('#l1st').firstElementChild;if(sv&&sv.classList.contains('l1svg')){const k=`inset:auto;left:${g.ox.toFixed(1)}px;top:${g.oy.toFixed(1)}px;width:${(340*g.s).toFixed(1)}px;height:${(548*g.s).toFixed(1)}px`;if(sv._k!==k){sv._k=k;sv.style.cssText=k;}}ctx.setTransform(d*g.s,0,0,d*g.s,d*g.ox,d*g.oy);try{if(b&&b.draw)b.draw(dt);}finally{ctx.setTransform(d,0,0,d,0,0);ctx.globalAlpha=1;}
  S.sparks=S.sparks.filter(p=>{p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=240*dt;const a=1-p.t/.9;if(a<=0)return false;ctx.globalAlpha=a;ctx.fillStyle=p.c;ctx.fillRect(p.x-2.5,p.y-2.5,5,5);return true;});ctx.globalAlpha=1;}
 const MANL1=`<button class="mx" id="manualClose" aria-label="Close manual">×</button><h2>MANUAL · LESSON 1<br>FIELDS + THE FORCE</h2>
@@ -2405,7 +2419,7 @@ function p3Frame(dt){const p=P3,b=cur();if(!p||!b||!b.p3)return;const st=$('#l1s
  p.box.material.opacity=.25+.75*L.tilt;p.gm.opacity=.45+.4*L.tilt;
  b.p3(dt);p.r.render(p.sc,cam);
  if(!p.labs||!p.labs[0].isConnected)p.labs=[0,1,2].map(()=>{const e=document.createElement('span');st.appendChild(e);return e;});
- const ls=L.p3lab||[];p.labs.forEach((e,i)=>{const q=ls[i];if(!q){e.style.display='none';return;}e.textContent=q[0];e.style.cssText=`position:absolute;left:${clamp(q[1],46,W-46).toFixed(1)}px;top:${q[2].toFixed(1)}px;transform:translate(-50%,-50%);color:${q[3]};font:700 13px var(--ui);white-space:nowrap;text-shadow:0 0 4px #060A12,0 0 4px #060A12;pointer-events:none`;});}
+ const ls=L.p3lab||[];p.labs.forEach((e,i)=>{const q=ls[i];if(!q){e.style.display='none';return;}e.textContent=q[0];e.style.cssText=`position:absolute;left:${clamp(q[1],46,W-46).toFixed(1)}px;top:${Math.min(q[2],H-($('#cap').offsetHeight||56)-14).toFixed(1)}px;transform:translate(-50%,-50%);color:${q[3]};font:700 13px var(--ui);white-space:nowrap;text-shadow:0 0 4px #060A12,0 0 4px #060A12;pointer-events:none`;});}
 /* shared scene set-up for each step */
 function p3scene(o){const p=P3;p.pm.position.set(P3P.x,P3P.y,P3P.z);p.pMat.color.set(o.neg?'#5CE1FF':'#FF6B6B');p.aim(p.vA,[P3P.x+.45,P3P.y,P3P.z],[1,0,0]);
  p.fA.visible=!!o.fP;p.hA.visible=!!o.fH;p.path.visible=!!o.path;p.hand.visible=o.hand!==false;}
@@ -2452,6 +2466,21 @@ P3BEATS.push(LV('l1negR3',{skip:()=>!p3ok(),enter(){p3base({tilt:1,tiltT:1,grow:
   const q=p3px([P3H.x,P3H.y+1.6,P3H.z]);L.p3lab=[['back of hand = F (−)',q[0]+40,q[1]-26,C.orange]];}}));
 (function(){const i=L1B.findIndex(b=>b.id==='l1palm');L1B.splice(i+1,0,...P3BEATS.filter(b=>b.id!=='l1negR3'));const j=L1B.findIndex(b=>b.id==='l1negR');L1B.splice(j+1,0,P3BEATS.find(b=>b.id==='l1negR3'));})();
 Object.assign(CODEC,{l1p3a:'L1-16a',l1p3b:'L1-16b',l1p3c:'L1-16c',l1p3d:'L1-16d',l1negR3:'L1-17'});
+
+/* ---------- v15 · phone layout: keep scenes clear of board + caption, swipe to hide Safari bars ---------- */
+function l1lay(){const capEl=$('#cap'),ch=capEl.offsetHeight||56,m=$('#marq'),st=$('#l1st');
+ capEl.classList.toggle('hid',!!(m.classList.contains('open')&&m.offsetTop+m.offsetHeight>capEl.offsetTop-4));
+ if(st.hidden)return;const ov=st.querySelector('.l1goals,.l1cards');let bot=ch+8;
+ if(ov){ov.style.top='auto';ov.style.bottom=bot+'px';bot+=ov.offsetHeight+6;}
+ const sv=st.querySelector('.l1svg.fit');if(sv){const t=Math.max(0,gTop-8);sv.style.top=t+'px';sv.style.height=Math.max(60,st.clientHeight-t-bot)+'px';}}
+(function swipeFS(){const de=document.documentElement,mm=q=>{try{return matchMedia(q).matches}catch(e){return false}};
+ let top=true;try{top=window.top===window}catch(e){top=false}
+ if(!top||!mm('(pointer:coarse)')||navigator.standalone||mm('(display-mode: standalone)'))return;
+ de.classList.add('swipe');const pad=document.createElement('div');pad.id='swipePad';pad.setAttribute('aria-hidden','true');document.body.appendChild(pad);
+ let seen=false;try{seen=!!localStorage.getItem('la-swiped')}catch(e){}
+ const strip=document.querySelector('.strip');let hint=null;
+ if(!seen&&strip){hint=document.createElement('span');hint.id='swipeHint';hint.textContent='SWIPE ↑ FOR FULL SCREEN';strip.appendChild(hint);de.classList.add('hinting');}
+ addEventListener('scroll',()=>{if(scrollY>8&&hint){hint.remove();hint=null;de.classList.remove('hinting');try{localStorage.setItem('la-swiped','1')}catch(e){}}},{passive:true});})();
 
 
 /* ---------- flow ---------- */
@@ -2507,7 +2536,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#manual').hidden
 let last=performance.now();
 function loop(t){const dt=Math.min(.05,(t-last)/1000)*(RM&&S.lvl==='C2'?.6:1);last=t;step(dt);draw(dt);updTug();rBadge();if(drag||S.defl!==0)paintStick();if(labOverride&&performance.now()>labOverride.until){labOverride=null;drawLab();}requestAnimationFrame(loop);}
 stars();renderTiles();showMap();requestAnimationFrame(t=>{last=t;loop(t);});
-window.__arcade={l1:{get L(){return L},p3Turn,p3ok,get P3(){return P3},L1B,startL1,dragSetAngle,dialSet,dartSet,ownPlace,goalStep,whoPick,splitEv,splitChain,ruleCheck,palmTurn,stepL1,l1Done,l2Open,bindMapDeck,LK},pos0,startCircle,showMap,mapStart,get CIRC(){return CIRC},updDD,showTitle0,get C0N(){return C0N},pick0,S,setTile,tapAt2,evGeom,isC2,get C2N(){return C2N},renderC2Deck,get BEATS(){return BEATS},goNext,goBack,showTitle,showTitle3,useLevel,beginPlay,setFac,settled,ratio,flick,Tnow,tapAt,geom,cur:()=>cur(),snapNear};
+window.__arcade={l1:{get L(){return L},p3Turn,p3ok,l1lay,get P3(){return P3},L1B,startL1,dragSetAngle,dialSet,dartSet,ownPlace,goalStep,whoPick,splitEv,splitChain,ruleCheck,palmTurn,stepL1,l1Done,l2Open,bindMapDeck,LK},pos0,startCircle,showMap,mapStart,get CIRC(){return CIRC},updDD,showTitle0,get C0N(){return C0N},pick0,S,setTile,tapAt2,evGeom,isC2,get C2N(){return C2N},renderC2Deck,get BEATS(){return BEATS},goNext,goBack,showTitle,showTitle3,useLevel,beginPlay,setFac,settled,ratio,flick,Tnow,tapAt,geom,cur:()=>cur(),snapNear};
 })();
 </script>
 
